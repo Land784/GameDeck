@@ -1,5 +1,7 @@
 # GameDeck
 
+[![CI](https://github.com/Land784/GameDeck/actions/workflows/ci.yml/badge.svg)](https://github.com/Land784/GameDeck/actions/workflows/ci.yml)
+
 **Control your music and skip YouTube ads without ever leaving your game.**
 
 A lightweight Windows overlay + global-hotkey app that lets you control any
