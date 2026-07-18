@@ -108,6 +108,23 @@ dotnet publish src/GameDeck.App -c Release -r win-x64 \
   -p:PublishSingleFile=true --self-contained false   # release build
 ```
 
+## Session handoffs
+
+`handoffs/` (gitignored, local only) is the context bridge between coding
+sessions. Rules:
+
+- **At session start:** read the newest file in `handoffs/` before doing
+  anything else. It is the authoritative "where we left off," more current
+  and more detailed than the status section below.
+- **At session end** (or when asked to "write a handoff"): write
+  `handoffs/YYYY-MM-DD-<topic>.md` covering: exact repo/release state, what
+  was done and verified, decisions made (with reasoning), in-flight work,
+  next steps in priority order, and any gotchas discovered.
+- Handoffs may reference internal context (verification snippets, scratch
+  tooling, open questions) that doesn't belong in committed docs.
+- Never commit `handoffs/`; keep committed docs (README, CHANGELOG, this
+  file) updated separately at their own cadence.
+
 ## Current status / next step
 
 Phase 1 complete — v0.1.0 (invisible MVP) then v0.1.1 (hardening from a

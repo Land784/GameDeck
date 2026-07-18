@@ -485,3 +485,6 @@ $RECYCLE.BIN/
 
 # The template's *.app rule (macOS app bundles) matches our GameDeck.App folder
 !src/GameDeck.App/
+
+# Session handoff notes (local working context, never published)
+handoffs/
