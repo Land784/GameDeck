@@ -170,6 +170,59 @@ public class OverlayStateMachineTests
     }
 
     [Fact]
+    public void AdAppears_ShowsOverlayAndSuspendsAutoHide()
+    {
+        var machine = Create();
+
+        machine.NotifyAdStateChanged(adActive: true);
+
+        Assert.Equal(OverlayState.FadingIn, machine.State);
+        _time.Advance(OverlayTimings.Default.FadeIn);
+        _time.Advance(TimeSpan.FromMinutes(10));
+        Assert.Equal(OverlayState.Visible, machine.State);
+    }
+
+    [Fact]
+    public void AdEnds_RestartsTheAutoHideCountdown()
+    {
+        var machine = Create();
+        machine.NotifyAdStateChanged(adActive: true);
+        _time.Advance(OverlayTimings.Default.FadeIn);
+
+        machine.NotifyAdStateChanged(adActive: false);
+        _time.Advance(OverlayTimings.Default.VisibleDuration);
+
+        Assert.Equal(OverlayState.FadingOut, machine.State);
+    }
+
+    [Fact]
+    public void AdAppearsWhileVisible_KeepsOverlayUpWithoutReFading()
+    {
+        var machine = Create();
+        machine.NotifyTrackChanged();
+        _time.Advance(OverlayTimings.Default.FadeIn);
+
+        var states = new List<OverlayState>();
+        machine.StateChanged += (_, s) => states.Add(s);
+        machine.NotifyAdStateChanged(adActive: true);
+        _time.Advance(TimeSpan.FromMinutes(10));
+
+        Assert.Equal(OverlayState.Visible, machine.State);
+        Assert.Empty(states);
+    }
+
+    [Fact]
+    public void AdEndsWhileHidden_StaysHidden()
+    {
+        var machine = Create();
+
+        machine.NotifyAdStateChanged(adActive: false);
+        _time.Advance(TimeSpan.FromMinutes(1));
+
+        Assert.Equal(OverlayState.Hidden, machine.State);
+    }
+
+    [Fact]
     public void RapidToggleMidFade_DoesNotFireStaleDeadlines()
     {
         var machine = Create();

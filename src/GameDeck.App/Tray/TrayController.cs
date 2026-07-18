@@ -66,6 +66,15 @@ public sealed class TrayController : IDisposable
 
         menu.Items.Add(MakeItem("Reset overlay", () => _resetOverlay()));
 
+        // Until the settings window exists, this is how the token reaches
+        // the browser extension's options page.
+        menu.Items.Add(MakeItem("Copy extension token", () =>
+        {
+            var token = _settings.Current.BridgeToken;
+            if (token is not null)
+                Clipboard.SetText(token);
+        }));
+
         menu.Items.Add(new Separator());
         menu.Items.Add(MakeItem("Exit", () => Application.Current.Shutdown()));
         return menu;

@@ -198,15 +198,14 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 ## Current status / next step
 
 Phase 1 shipped (v0.1.0 + v0.1.1 hardening). Phase 2 CORE done and
-verified: overlay card (art/title/artist/progress) with TDD auto-hide
-state machine in Core, Ctrl+Alt+O/I wired, click-through + failsafes.
-42 Core tests. Tray icon pinned to H.NotifyIcon.Wpf 2.3.0 (2.4.1 has no
-net8.0 target).
+verified. Phase 3 (ad-skip bridge) BUILT on `feat/phase3-bridge`:
+protocol + AdStateTracker + BridgeHub/AdBridgeServer in Core (81 Core
+tests), overlay ad strip + Ctrl+Alt+S wired and verified live against a
+scripted fake extension, MV3 extension in `extension/`. Tray icon pinned
+to H.NotifyIcon.Wpf 2.3.0 (2.4.1 has no net8.0 target).
 
-Next: Phase 3 (ad-skip bridge) pulled forward ahead of Phase 2 polish.
-The full step-by-step plan for everything remaining lives in the newest
-handoffs/ file — read it first, always.
-
-Next: Phase 2 — the overlay. OverlayWindow (transparent/topmost/click-through),
-z-order guard, auto-hide state machine, interactivity toggle, settings window.
-See PLAN.md §6.
+Phase 3 verified against live YouTube ads (both skip paths: synthetic
+click and seek fallback) and released as v0.3.0. Remaining Phase 3
+loose ends: Chrome Web Store submission (Will's account, $5) and the
+demo GIF. Next: Phase 2 polish (Session B in the newest handoffs/
+file — read it first, always).

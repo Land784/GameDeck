@@ -49,8 +49,31 @@ public sealed class OverlayStateMachine : IDisposable
 
     public event EventHandler<OverlayState>? StateChanged;
 
-    /// <summary>Countdown to auto-hide; suspended while interactive.</summary>
-    private TimeSpan VisibleTimeout => IsInteractive ? Timeout.InfiniteTimeSpan : _timings.VisibleDuration;
+    /// <summary>Countdown to auto-hide; suspended while interactive or an ad is playing.</summary>
+    private TimeSpan VisibleTimeout =>
+        IsInteractive || _adActive ? Timeout.InfiniteTimeSpan : _timings.VisibleDuration;
+
+    private bool _adActive;
+
+    /// <summary>An ad keeps the overlay up; its end restarts the normal countdown.</summary>
+    public void NotifyAdStateChanged(bool adActive)
+    {
+        lock (_sync)
+        {
+            _adActive = adActive;
+            switch (State)
+            {
+                case OverlayState.Visible:
+                    _timer.Change(VisibleTimeout, Timeout.InfiniteTimeSpan);
+                    break;
+                case OverlayState.Hidden:
+                case OverlayState.FadingOut:
+                    if (adActive)
+                        TransitionTo(OverlayState.FadingIn, _timings.FadeIn);
+                    break;
+            }
+        }
+    }
 
     public void NotifyTrackChanged()
     {

@@ -14,5 +14,11 @@ public sealed class AppSettings
 
     public List<HotkeyBinding> Hotkeys { get; set; } = HotkeyBinding.Defaults.ToList();
 
+    /// <summary>
+    /// Shared secret the browser extension must present in its hello frame.
+    /// Generated on first load (additive field; no settings version bump).
+    /// </summary>
+    public string? BridgeToken { get; set; }
+
     // Overlay settings land in Phase 2; version bump + migration when they do.
 }

@@ -8,8 +8,9 @@ A lightweight Windows overlay and global-hotkey app that lets you control any
 media source (Spotify, YouTube, Apple Music) while staying in-game. No
 alt-tabbing, no dropped frames.
 
-> 🚧 Early development. **v0.1.0** ships global hotkeys, the media engine,
-> and a tray icon. The visual overlay is next (Phase 2). See
+> 🚧 Early development. Released builds ship global hotkeys, the media
+> engine, and a tray icon. The in-game overlay and YouTube ad-skip are
+> done in source and land in the next release (v0.3.0). See
 > [PLAN.md](PLAN.md) for the full roadmap.
 
 ## What works now
@@ -21,13 +22,42 @@ alt-tabbing, no dropped frames.
   | `Ctrl+Alt+Space` | Play / pause |
   | `Ctrl+Alt+Right` | Next track |
   | `Ctrl+Alt+Left` | Previous track |
+  | `Ctrl+Alt+O` | Show / hide the overlay |
+  | `Ctrl+Alt+I` | Make the overlay clickable (drag it, click controls) |
+  | `Ctrl+Alt+S` | Skip the current YouTube ad |
 
+- **In-game overlay**: a small translucent card (album art, title, artist,
+  progress) that fades in on track changes and hides itself after a few
+  seconds. Click-through by default, so your game never loses input. Works
+  over borderless and most modern fullscreen games.
+- **YouTube ad-skip**: with the companion browser extension installed, the
+  overlay shows a strip when an ad is playing in a background YouTube tab
+  (amber while unskippable, green when the skip button is up), and
+  `Ctrl+Alt+S` clicks skip for you. You hear music again without touching
+  the browser.
 - **Tray icon** with a now-playing tooltip, playback menu, media source
   picker (Spotify vs. browser vs. anything else), and an opt-in
   "Start with Windows" setting.
 - Works with **any media source** that integrates with Windows SMTC:
   Spotify desktop, YouTube in any browser, Apple Music, and more. No
   accounts or OAuth required.
+
+### Setting up ad-skip
+
+1. Install the GameDeck Companion extension (Chrome Web Store listing
+   pending review; until then load the `extension/` folder unpacked via
+   `chrome://extensions` with Developer mode on).
+2. Right-click the GameDeck tray icon and pick "Copy extension token".
+3. Open the extension's options page, paste the token, hit Save. The
+   status dot turns green when it finds the app.
+
+**Security model, honestly:** the extension and app talk over a WebSocket
+bound to 127.0.0.1 only; nothing ever leaves your machine. The pasted token
+stops other local programs from feeding the app fake ad state. On skip, the
+extension presses the same skip button you would press (and if YouTube
+ignores the synthetic press, it jumps to the end of the ad instead, but
+only while the skip button is showing). It never touches your mouse,
+keyboard, focus, or the game. No telemetry on either side.
 
 ### Try it
 
@@ -42,16 +72,18 @@ dotnet run --project src/GameDeck.App
 Play something, then hit the hotkeys. No window opens; look for ♪ in the
 system tray.
 
-## How it works (planned)
+## How it works
 
 - **Global hotkeys** (`RegisterHotKey`) work over any game, including
   exclusive fullscreen.
 - **Transparent overlay** (WPF layered window) shows track info and album
   art over borderless and modern fullscreen games, click-through by default.
+  Legacy exclusive-fullscreen games can hide it; the hotkeys still work.
 - **System media control** via Windows SMTC: one integration covers every
   media app, works offline, and needs no accounts or OAuth.
 - **YouTube ad-skip** via a companion browser extension talking to the app
-  over a localhost WebSocket.
+  over a localhost WebSocket. Protocol details in
+  [docs/bridge-protocol.md](docs/bridge-protocol.md).
 
 ## Non-goals
 
