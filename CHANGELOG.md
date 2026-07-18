@@ -7,8 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-Phase 2: the transparent in-game overlay (track card, click-through,
-auto-hide) and the settings window.
+Ships as v0.3.0 once the ad-skip flow is verified against a live YouTube
+ad. Contains the Phase 2 overlay core and the Phase 3 ad-skip bridge.
+
+### Added
+
+- In-game overlay: translucent now-playing card (album art, title, artist,
+  progress bar) that fades in on track changes and auto-hides after 4
+  seconds. Click-through by default. `Ctrl+Alt+O` toggles visibility;
+  `Ctrl+Alt+I` makes it clickable for dragging, with an Esc/30-second
+  auto-revert failsafe and a tray "Reset overlay" item.
+- YouTube ad-skip: the GameDeck Companion browser extension (in
+  `extension/`, Manifest V3) watches YouTube tabs for ads and reports to
+  the app over a localhost-only WebSocket. The overlay shows an amber
+  strip while an ad plays and a green one once it is skippable;
+  `Ctrl+Alt+S` skips it without leaving the game.
+- Token handshake between app and extension: copy it from the tray menu
+  ("Copy extension token") into the extension options page. Connections
+  without the token are dropped.
+- Bridge protocol documented in `docs/bridge-protocol.md`.
+
+### Changed
+
+- The overlay card grows a bottom strip only while an ad is active; the
+  ad keeps the overlay visible until the ad ends.
 
 ## [0.1.1] - 2026-07-17
 
