@@ -8,8 +8,38 @@ A lightweight Windows overlay + global-hotkey app that lets you control any
 media source (Spotify, YouTube, Apple Music, …) while staying in-game — no
 alt-tabbing, no dropped frames.
 
-> 🚧 Early development — Phase 0 (scaffolding). See [PLAN.md](PLAN.md) for the
-> full roadmap.
+> 🚧 Early development — **v0.1.0** (the "invisible MVP"): global hotkeys,
+> media engine, and tray icon all work today. The visual overlay is next
+> (Phase 2). See [PLAN.md](PLAN.md) for the full roadmap.
+
+## What works now
+
+- **Global hotkeys** over any game, including exclusive fullscreen:
+
+  | Hotkey | Action |
+  |---|---|
+  | `Ctrl+Alt+Space` | Play / pause |
+  | `Ctrl+Alt+Right` | Next track |
+  | `Ctrl+Alt+Left` | Previous track |
+
+- **Tray icon** with now-playing tooltip, playback menu, media-source
+  picker (Spotify vs. browser vs. anything else), and opt-in
+  "Start with Windows".
+- Works with **any media source** — Spotify desktop, YouTube in any
+  browser, Apple Music — via Windows SMTC. No accounts, no OAuth.
+
+### Try it
+
+Grab the zip from [Releases](https://github.com/Land784/GameDeck/releases)
+(needs the [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0)),
+or build from source:
+
+```bash
+dotnet run --project src/GameDeck.App
+```
+
+Play something, then hit the hotkeys — no window opens; look for ♪ in the
+system tray.
 
 ## How it works (planned)
 

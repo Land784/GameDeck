@@ -110,6 +110,11 @@ dotnet publish src/GameDeck.App -c Release -r win-x64 \
 
 ## Current status / next step
 
-Phase 0 — repo scaffolding. See PLAN.md for the full roadmap. Next concrete
-task: create the solution + three projects, verify SMTC access by printing
-the current media title from a scratch console call in `GameDeck.Core`.
+Phase 1 complete — tagged v0.1.0 (invisible MVP): SMTC media engine with
+session picker + debounce in Core (25 unit tests), global hotkeys on a
+message-only window, tray icon (H.NotifyIcon.Wpf pinned to 2.3.0 — 2.4.1
+has no net8.0 target), single-instance mutex, JSON settings.
+
+Next: Phase 2 — the overlay. OverlayWindow (transparent/topmost/click-through),
+z-order guard, auto-hide state machine, interactivity toggle, settings window.
+See PLAN.md §6.
