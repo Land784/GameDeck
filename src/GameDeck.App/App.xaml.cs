@@ -66,8 +66,9 @@ public partial class App : Application
 
         _overlay = new OverlayController(
             _media,
-            new OverlayStateMachine(TimeProvider.System, OverlayTimings.Default),
-            OverlayTimings.Default,
+            new OverlayStateMachine(TimeProvider.System, OverlayTimings.FromSettings(
+                _settings.Current.AutoHideSeconds, _settings.Current.AnimationsEnabled)),
+            _settings,
             loggerFactory.CreateLogger<OverlayController>());
 
         _tray = new TrayController(_media, _settings, () => _overlay?.Reset());

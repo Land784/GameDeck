@@ -26,8 +26,13 @@ public partial class OverlayWindow : Window
         {
             if (IsClickThrough || e.ButtonState != MouseButtonState.Pressed) return;
             DragMove();
+            // DragMove blocks until the button is released; the drop position
+            // is now final and the controller can snap and persist it.
+            DragCompleted?.Invoke();
         };
     }
+
+    public event Action? DragCompleted;
 
     public bool IsClickThrough { get; private set; } = true;
 
@@ -38,11 +43,10 @@ public partial class OverlayWindow : Window
             WindowInterop.SetClickThrough(_hwnd, clickThrough);
     }
 
-    public void ShowTopRight()
+    public void ShowAt(double left, double top)
     {
-        var area = SystemParameters.WorkArea;
-        Left = area.Right - Width - 16;
-        Top = area.Top + 16;
+        Left = left;
+        Top = top;
         Show();
         AssertTopmost();
     }
