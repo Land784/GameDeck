@@ -3,6 +3,7 @@ using System.Windows;
 using GameDeck.App.Hotkeys;
 using GameDeck.App.Overlay;
 using GameDeck.App.Tray;
+using GameDeck.Core.Bridge;
 using GameDeck.Core.Hotkeys;
 using GameDeck.Core.Media;
 using GameDeck.Core.Overlay;
@@ -23,6 +24,8 @@ public partial class App : Application
     private TrayController? _tray;
     private OverlayController? _overlay;
     private SettingsService? _settings;
+    private AdBridgeServer? _bridge;
+    private ILoggerFactory? _loggerFactory;
     private ILogger? _log;
 
     protected override void OnStartup(StartupEventArgs e)
@@ -40,6 +43,7 @@ public partial class App : Application
         }
 
         var loggerFactory = ConfigureLogging();
+        _loggerFactory = loggerFactory;
         _log = loggerFactory.CreateLogger("App");
         _log.LogInformation("GameDeck {Version} starting",
             typeof(App).Assembly.GetName().Version?.ToString(3));
@@ -123,6 +127,9 @@ public partial class App : Application
 
     private async Task FinishStartupAsync(IReadOnlyList<HotkeyAction> conflicts)
     {
+        // The bridge is independent of media; a Spotify failure must not kill ad-skip.
+        StartBridge();
+
         try
         {
             await _media!.InitializeAsync();
@@ -141,6 +148,22 @@ public partial class App : Application
                 "GameDeck hotkey conflict",
                 $"Already taken by another app: {string.Join(", ", conflicts)}.");
         }
+    }
+
+    private void StartBridge()
+    {
+        var token = _settings?.Current.BridgeToken;
+        if (token is null)
+        {
+            _log?.LogWarning("No bridge token in settings; bridge not started");
+            return;
+        }
+
+        var tracker = new AdStateTracker();
+        tracker.ActiveAdChanged += (_, status) => _overlay?.OnAdStateChanged(status);
+        _bridge = new AdBridgeServer(token, tracker, TimeProvider.System,
+            _loggerFactory?.CreateLogger<AdBridgeServer>());
+        _bridge.Start();
     }
 
     private void OnHotkeyPressed(HotkeyAction action)
@@ -164,13 +187,16 @@ public partial class App : Application
             case HotkeyAction.ToggleInteractivity:
                 _overlay?.ToggleInteractivity();
                 break;
-            // SkipAd lands in Phase 3.
+            case HotkeyAction.SkipAd:
+                _ = _bridge?.SendSkipAsync();
+                break;
         }
     }
 
     protected override void OnExit(ExitEventArgs e)
     {
         SystemEvents.SessionSwitch -= OnSessionSwitch;
+        _bridge?.Dispose();
         _tray?.Dispose();
         _overlay?.Dispose();
         _hotkeys?.Dispose();

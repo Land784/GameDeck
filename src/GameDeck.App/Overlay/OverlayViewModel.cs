@@ -3,6 +3,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using GameDeck.Core.Bridge;
 using GameDeck.Core.Media;
 
 namespace GameDeck.App.Overlay;
@@ -56,6 +57,40 @@ public sealed class OverlayViewModel : INotifyPropertyChanged
     {
         get => _isInteractive;
         set => Set(ref _isInteractive, value, nameof(IsInteractive));
+    }
+
+    private string _adText = string.Empty;
+    private bool _isAdSkippable;
+    private Visibility _adStripVisibility = Visibility.Collapsed;
+
+    public string AdText
+    {
+        get => _adText;
+        private set => Set(ref _adText, value, nameof(AdText));
+    }
+
+    public bool IsAdSkippable
+    {
+        get => _isAdSkippable;
+        private set => Set(ref _isAdSkippable, value, nameof(IsAdSkippable));
+    }
+
+    public Visibility AdStripVisibility
+    {
+        get => _adStripVisibility;
+        private set => Set(ref _adStripVisibility, value, nameof(AdStripVisibility));
+    }
+
+    public void SetAdState(AdStatus? status)
+    {
+        AdStripVisibility = status is null ? Visibility.Collapsed : Visibility.Visible;
+        IsAdSkippable = status?.Skippable == true;
+        AdText = status switch
+        {
+            null => string.Empty,
+            { Skippable: true } => "Skippable now: Ctrl+Alt+S",
+            _ => "Ad playing. Ctrl+Alt+S skips when ready",
+        };
     }
 
     public void UpdateFromSnapshot(MediaSnapshot? snapshot)

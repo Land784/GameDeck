@@ -1,4 +1,5 @@
 using System.Windows.Threading;
+using GameDeck.Core.Bridge;
 using GameDeck.Core.Media;
 using GameDeck.Core.Overlay;
 using Microsoft.Extensions.Logging;
@@ -71,6 +72,16 @@ public sealed class OverlayController : IDisposable
     }
 
     public void ToggleVisibility() => _machine.ToggleVisibility();
+
+    /// <summary>Bridge callback; arrives on a threadpool thread.</summary>
+    public void OnAdStateChanged(AdStatus? status)
+    {
+        _dispatcher.BeginInvoke(() =>
+        {
+            _vm.SetAdState(status);
+            _machine.NotifyAdStateChanged(status is not null);
+        });
+    }
 
     public void ToggleInteractivity() => SetInteractive(!_machine.IsInteractive);
 
