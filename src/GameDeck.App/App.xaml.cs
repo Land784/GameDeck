@@ -19,7 +19,11 @@ namespace GameDeck.App;
 
 public partial class App : Application
 {
+    private const string ActivateEventName = @"Local\GameDeck.Activate";
+
     private Mutex? _instanceMutex;
+    private EventWaitHandle? _activateEvent;
+    private RegisteredWaitHandle? _activateWait;
     private MediaSessionService? _media;
     private HotkeyHost? _hotkeys;
     private TrayController? _tray;
@@ -38,7 +42,17 @@ public partial class App : Application
         _instanceMutex = new Mutex(initiallyOwned: true, @"Local\GameDeck", out var createdNew);
         if (!createdNew)
         {
-            // Another instance owns the tray icon; exit quietly.
+            // Another instance owns the tray icon; poke it so it can tell the
+            // user where it lives, then exit quietly.
+            try
+            {
+                using var activate = EventWaitHandle.OpenExisting(ActivateEventName);
+                activate.Set();
+            }
+            catch (WaitHandleCannotBeOpenedException)
+            {
+                // First instance predates this build or is mid-shutdown; nothing to poke.
+            }
             Shutdown();
             return;
         }
@@ -73,6 +87,14 @@ public partial class App : Application
             loggerFactory.CreateLogger<OverlayController>());
 
         _tray = new TrayController(_media, _settings, () => _overlay?.Reset(), OpenSettings);
+
+        _activateEvent = new EventWaitHandle(false, EventResetMode.AutoReset, ActivateEventName);
+        _activateWait = ThreadPool.RegisterWaitForSingleObject(
+            _activateEvent,
+            (_, _) => _tray?.ShowBalloon(
+                "GameDeck is already running",
+                "Look for the note icon in the system tray."),
+            null, Timeout.Infinite, executeOnlyOnce: false);
 
         SystemEvents.SessionSwitch += OnSessionSwitch;
 
@@ -215,6 +237,8 @@ public partial class App : Application
     protected override void OnExit(ExitEventArgs e)
     {
         SystemEvents.SessionSwitch -= OnSessionSwitch;
+        _activateWait?.Unregister(null);
+        _activateEvent?.Dispose();
         _bridge?.Dispose();
         _tray?.Dispose();
         _overlay?.Dispose();

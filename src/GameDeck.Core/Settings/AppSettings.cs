@@ -13,6 +13,10 @@ public sealed class AppSettings
     /// <summary>Pinned media source app id; null follows the system current session.</summary>
     public string? PreferredAppId { get; set; }
 
+    /// <summary>Display name captured when pinning, so the picker can show
+    /// "Spotify (not running)" after the app closes (additive field).</summary>
+    public string? PreferredAppName { get; set; }
+
     public List<HotkeyBinding> Hotkeys { get; set; } = HotkeyBinding.Defaults.ToList();
 
     /// <summary>

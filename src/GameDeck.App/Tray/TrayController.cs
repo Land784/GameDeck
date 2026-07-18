@@ -103,10 +103,11 @@ public sealed class TrayController : IDisposable
             IsCheckable = true,
             IsChecked = preferred is null,
         };
-        automatic.Click += (_, _) => SetPreferred(null);
+        automatic.Click += (_, _) => SetPreferred(null, null);
         _sourceMenu.Items.Add(automatic);
 
-        foreach (var session in _media.Sessions)
+        var sessions = _media.Sessions;
+        foreach (var session in sessions)
         {
             var item = new MenuItem
             {
@@ -115,15 +116,33 @@ public sealed class TrayController : IDisposable
                 IsChecked = session.AppId == preferred,
             };
             var appId = session.AppId;
-            item.Click += (_, _) => SetPreferred(appId);
+            var name = session.DisplayName;
+            item.Click += (_, _) => SetPreferred(appId, name);
             _sourceMenu.Items.Add(item);
+        }
+
+        // Pins are sticky across the source closing (decision 5); show the
+        // absent source grayed instead of silently dropping the checkmark.
+        if (preferred is not null && sessions.All(s => s.AppId != preferred))
+        {
+            _sourceMenu.Items.Add(new MenuItem
+            {
+                Header = $"{_settings.Current.PreferredAppName ?? preferred} (not running)",
+                IsCheckable = true,
+                IsChecked = true,
+                IsEnabled = false,
+            });
         }
     }
 
-    private void SetPreferred(string? appId)
+    private void SetPreferred(string? appId, string? name)
     {
         _media.PreferredAppId = appId;
-        _settings.Update(s => s.PreferredAppId = appId);
+        _settings.Update(s =>
+        {
+            s.PreferredAppId = appId;
+            s.PreferredAppName = name;
+        });
     }
 
     private void OnSnapshotChanged(object? sender, MediaSnapshot? snapshot)

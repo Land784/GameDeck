@@ -231,10 +231,15 @@ public partial class SettingsWindow : Window
         SourceBox.DropDownOpened += (_, _) => FillSources();
         SourceBox.SelectionChanged += (_, _) =>
         {
-            if (_loading || SourceBox.SelectedItem is not ComboBoxItem item) return;
+            if (_loading || SourceBox.SelectedItem is not ComboBoxItem { IsEnabled: true } item) return;
             var appId = item.Tag as string;
+            var name = appId is null ? null : item.Content as string;
             _media.PreferredAppId = appId;
-            _settings.Update(s => s.PreferredAppId = appId);
+            _settings.Update(s =>
+            {
+                s.PreferredAppId = appId;
+                s.PreferredAppName = name;
+            });
         };
     }
 
@@ -243,8 +248,19 @@ public partial class SettingsWindow : Window
         var preferred = _media.PreferredAppId;
         SourceBox.Items.Clear();
         SourceBox.Items.Add(new ComboBoxItem { Content = "Automatic", Tag = null });
-        foreach (var session in _media.Sessions)
+        var sessions = _media.Sessions;
+        foreach (var session in sessions)
             SourceBox.Items.Add(new ComboBoxItem { Content = session.DisplayName, Tag = session.AppId });
+
+        if (preferred is not null && sessions.All(s => s.AppId != preferred))
+        {
+            SourceBox.Items.Add(new ComboBoxItem
+            {
+                Content = $"{_settings.Current.PreferredAppName ?? preferred} (not running)",
+                Tag = preferred,
+                IsEnabled = false,
+            });
+        }
 
         SourceBox.SelectedIndex = 0;
         for (var i = 1; i < SourceBox.Items.Count; i++)
