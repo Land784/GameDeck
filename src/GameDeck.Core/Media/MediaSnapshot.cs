@@ -3,14 +3,14 @@ namespace GameDeck.Core.Media;
 /// <summary>
 /// Immutable view of what's playing right now. Value equality includes album
 /// art bytes so consumers can rely on "no event unless something changed".
+/// Progress lives in <see cref="MediaTimeline"/>, not here — position ticks
+/// must not look like track changes.
 /// </summary>
 public sealed record MediaSnapshot(
     string Title,
     string Artist,
     string AlbumTitle,
     PlaybackState Playback,
-    TimeSpan Position,
-    TimeSpan Duration,
     string SourceAppId)
 {
     public byte[]? AlbumArtPng { get; init; }
@@ -23,14 +23,12 @@ public sealed record MediaSnapshot(
                && Artist == other.Artist
                && AlbumTitle == other.AlbumTitle
                && Playback == other.Playback
-               && Position == other.Position
-               && Duration == other.Duration
                && SourceAppId == other.SourceAppId
                && ArtEquals(AlbumArtPng, other.AlbumArtPng);
     }
 
     public override int GetHashCode() =>
-        HashCode.Combine(Title, Artist, AlbumTitle, Playback, Position, Duration, SourceAppId,
+        HashCode.Combine(Title, Artist, AlbumTitle, Playback, SourceAppId,
             AlbumArtPng?.Length ?? -1);
 
     private static bool ArtEquals(byte[]? a, byte[]? b)

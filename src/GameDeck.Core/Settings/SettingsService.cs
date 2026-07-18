@@ -1,5 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace GameDeck.Core.Settings;
 
@@ -16,12 +18,14 @@ public sealed class SettingsService
     };
 
     private readonly string _filePath;
+    private readonly ILogger _logger;
 
-    public SettingsService(string? directory = null)
+    public SettingsService(string? directory = null, ILogger? logger = null)
     {
         directory ??= Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GameDeck");
         _filePath = Path.Combine(directory, "settings.json");
+        _logger = logger ?? NullLogger.Instance;
     }
 
     public AppSettings Current { get; private set; } = new();
@@ -40,9 +44,10 @@ public sealed class SettingsService
                 }
             }
         }
-        catch
+        catch (Exception ex)
         {
             // Corrupt or unreadable settings must never block startup.
+            _logger.LogWarning(ex, "Settings unreadable at {Path}; using defaults", _filePath);
         }
 
         Current = new AppSettings();

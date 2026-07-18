@@ -1,4 +1,6 @@
 using System.Runtime.InteropServices.WindowsRuntime;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Windows.Media.Control;
 using Windows.Storage.Streams;
 
@@ -7,9 +9,12 @@ namespace GameDeck.Core.Media;
 /// <summary>Real WinRT-backed facade. Only touched by the app, never by tests.</summary>
 public sealed class SmtcFacade : ISmtcFacade
 {
+    private readonly ILogger _logger;
     private GlobalSystemMediaTransportControlsSessionManager? _manager;
     private readonly object _gate = new();
     private Dictionary<GlobalSystemMediaTransportControlsSession, SmtcSessionWrapper> _wrappers = new();
+
+    public SmtcFacade(ILogger? logger = null) => _logger = logger ?? NullLogger.Instance;
 
     public event EventHandler? CurrentSessionChanged;
     public event EventHandler? SessionsChanged;
@@ -18,7 +23,26 @@ public sealed class SmtcFacade : ISmtcFacade
     {
         _manager = await GlobalSystemMediaTransportControlsSessionManager.RequestAsync();
         _manager.CurrentSessionChanged += (_, _) => CurrentSessionChanged?.Invoke(this, EventArgs.Empty);
-        _manager.SessionsChanged += (_, _) => SessionsChanged?.Invoke(this, EventArgs.Empty);
+        _manager.SessionsChanged += (_, _) =>
+        {
+            PruneClosedSessions();
+            SessionsChanged?.Invoke(this, EventArgs.Empty);
+        };
+    }
+
+    /// <summary>Drop wrappers for sessions that no longer exist, or they accumulate forever.</summary>
+    private void PruneClosedSessions()
+    {
+        if (_manager is null) return;
+        var live = _manager.GetSessions().ToHashSet();
+        var current = _manager.GetCurrentSession();
+        if (current is not null) live.Add(current);
+
+        lock (_gate)
+        {
+            foreach (var dead in _wrappers.Keys.Where(k => !live.Contains(k)).ToList())
+                _wrappers.Remove(dead);
+        }
     }
 
     public ISmtcSession? CurrentSession
@@ -45,7 +69,7 @@ public sealed class SmtcFacade : ISmtcFacade
         {
             if (!_wrappers.TryGetValue(raw, out var wrapper))
             {
-                wrapper = new SmtcSessionWrapper(raw);
+                wrapper = new SmtcSessionWrapper(raw, _logger);
                 _wrappers[raw] = wrapper;
             }
 
@@ -64,10 +88,12 @@ public sealed class SmtcFacade : ISmtcFacade
 internal sealed class SmtcSessionWrapper : ISmtcSession
 {
     private readonly GlobalSystemMediaTransportControlsSession _raw;
+    private readonly ILogger _logger;
 
-    public SmtcSessionWrapper(GlobalSystemMediaTransportControlsSession raw)
+    public SmtcSessionWrapper(GlobalSystemMediaTransportControlsSession raw, ILogger logger)
     {
         _raw = raw;
+        _logger = logger;
         _raw.MediaPropertiesChanged += (_, _) => MediaPropertiesChanged?.Invoke(this, EventArgs.Empty);
         _raw.PlaybackInfoChanged += (_, _) => PlaybackInfoChanged?.Invoke(this, EventArgs.Empty);
         _raw.TimelinePropertiesChanged += (_, _) => TimelinePropertiesChanged?.Invoke(this, EventArgs.Empty);
@@ -91,9 +117,10 @@ internal sealed class SmtcSessionWrapper : ISmtcSession
             {
                 art = await ReadAllBytesAsync(props.Thumbnail);
             }
-            catch
+            catch (Exception ex)
             {
                 // Art is best-effort; metadata without art beats no metadata.
+                _logger.LogDebug(ex, "Album art read failed for {AppId}", AppId);
             }
         }
 

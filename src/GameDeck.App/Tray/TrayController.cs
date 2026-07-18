@@ -58,12 +58,8 @@ public sealed class TrayController : IDisposable
             IsCheckable = true,
             IsChecked = StartupManager.IsEnabled(),
         };
-        startup.Click += (_, _) =>
-        {
-            StartupManager.SetEnabled(startup.IsChecked);
-            _settings.Current.StartWithWindows = startup.IsChecked;
-            _settings.Save();
-        };
+        // The Run key is the single source of truth; nothing mirrored to settings.
+        startup.Click += (_, _) => StartupManager.SetEnabled(startup.IsChecked);
         menu.Items.Add(startup);
 
         menu.Items.Add(new Separator());

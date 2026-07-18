@@ -110,10 +110,19 @@ dotnet publish src/GameDeck.App -c Release -r win-x64 \
 
 ## Current status / next step
 
-Phase 1 complete — tagged v0.1.0 (invisible MVP): SMTC media engine with
-session picker + debounce in Core (25 unit tests), global hotkeys on a
-message-only window, tray icon (H.NotifyIcon.Wpf pinned to 2.3.0 — 2.4.1
-has no net8.0 target), single-instance mutex, JSON settings.
+Phase 1 complete — v0.1.0 (invisible MVP) then v0.1.1 (hardening from a
+design review): SMTC media engine with session picker + debounce in Core
+(31 unit tests), snapshot events split from interpolated timeline, global
+hotkeys with unlock re-registration, tray icon (H.NotifyIcon.Wpf pinned to
+2.3.0 — 2.4.1 has no net8.0 target), per-session single-instance mutex,
+JSON settings (registry is sole owner of start-with-Windows), Serilog file
+logging in %APPDATA%\GameDeck\logs.
+
+Decisions locked for Phase 2 (from the review): pinned media source stays
+sticky when its app closes and shows "(not running)" grayed in the picker;
+second launch triggers an "already running" balloon from the first
+instance via named event; SMTC manager-loss watchdog stays deferred until
+logs show it actually occurring.
 
 Next: Phase 2 — the overlay. OverlayWindow (transparent/topmost/click-through),
 z-order guard, auto-hide state machine, interactivity toggle, settings window.

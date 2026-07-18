@@ -101,8 +101,7 @@ public class MediaSessionServiceTests
         _facade.FakeCurrent = spotify;
         var service = await CreateInitializedAsync();
 
-        MediaSnapshot? received = new MediaSnapshot("x", "x", "x", PlaybackState.Playing,
-            TimeSpan.Zero, TimeSpan.Zero, "x");
+        MediaSnapshot? received = new MediaSnapshot("x", "x", "x", PlaybackState.Playing, "x");
         service.SnapshotChanged += (_, s) => received = s;
 
         _facade.FakeSessions.Clear();
@@ -314,6 +313,109 @@ public class MediaSessionServiceTests
         var service = await CreateInitializedAsync();
 
         await service.NextAsync(); // must not propagate
+    }
+
+    // --- Timeline ---
+
+    [Fact]
+    public async Task TimelineTick_DoesNotRaiseSnapshotChanged()
+    {
+        var spotify = Session("Spotify.exe");
+        spotify.State = PlaybackState.Paused; // freeze interpolation for a stable assert
+        _facade.FakeSessions.Add(spotify);
+        _facade.FakeCurrent = spotify;
+        var service = await CreateInitializedAsync();
+
+        var raised = 0;
+        service.SnapshotChanged += (_, _) => raised++;
+
+        spotify.Position = TimeSpan.FromSeconds(42);
+        spotify.RaiseTimelinePropertiesChanged();
+        _time.Advance(PastDebounce);
+
+        Assert.Equal(0, raised);
+        Assert.Equal(TimeSpan.FromSeconds(42), service.CurrentTimeline?.Position);
+    }
+
+    [Fact]
+    public async Task CurrentTimeline_InterpolatesWhilePlaying()
+    {
+        var spotify = Session("Spotify.exe");
+        spotify.State = PlaybackState.Playing;
+        spotify.Position = TimeSpan.FromSeconds(10);
+        spotify.Duration = TimeSpan.FromSeconds(60);
+        _facade.FakeSessions.Add(spotify);
+        _facade.FakeCurrent = spotify;
+        var service = await CreateInitializedAsync();
+
+        _time.Advance(TimeSpan.FromSeconds(5));
+
+        Assert.Equal(TimeSpan.FromSeconds(15), service.CurrentTimeline?.Position);
+        Assert.Equal(TimeSpan.FromSeconds(60), service.CurrentTimeline?.Duration);
+    }
+
+    [Fact]
+    public async Task CurrentTimeline_FrozenWhilePaused()
+    {
+        var spotify = Session("Spotify.exe");
+        spotify.State = PlaybackState.Paused;
+        spotify.Position = TimeSpan.FromSeconds(10);
+        spotify.Duration = TimeSpan.FromSeconds(60);
+        _facade.FakeSessions.Add(spotify);
+        _facade.FakeCurrent = spotify;
+        var service = await CreateInitializedAsync();
+
+        _time.Advance(TimeSpan.FromSeconds(5));
+
+        Assert.Equal(TimeSpan.FromSeconds(10), service.CurrentTimeline?.Position);
+    }
+
+    [Fact]
+    public async Task CurrentTimeline_ClampsToDuration()
+    {
+        var spotify = Session("Spotify.exe");
+        spotify.State = PlaybackState.Playing;
+        spotify.Position = TimeSpan.FromSeconds(55);
+        spotify.Duration = TimeSpan.FromSeconds(60);
+        _facade.FakeSessions.Add(spotify);
+        _facade.FakeCurrent = spotify;
+        var service = await CreateInitializedAsync();
+
+        _time.Advance(TimeSpan.FromSeconds(30));
+
+        Assert.Equal(TimeSpan.FromSeconds(60), service.CurrentTimeline?.Position);
+    }
+
+    [Fact]
+    public async Task CurrentTimeline_NullWhenNoSession()
+    {
+        var service = await CreateInitializedAsync();
+
+        Assert.Null(service.CurrentTimeline);
+    }
+
+    // --- Refresh (unlock recovery) ---
+
+    [Fact]
+    public async Task Refresh_ReattachesWithoutAnyFacadeEvent()
+    {
+        var spotify = Session("Spotify.exe", "SpotifySong");
+        _facade.FakeSessions.Add(spotify);
+        _facade.FakeCurrent = spotify;
+        var service = await CreateInitializedAsync();
+
+        // Simulate the facade state changing while its events were silently
+        // dropped (e.g. across a lock/unlock).
+        var edge = Session("MSEdge", "EdgeSong");
+        _facade.FakeSessions.Add(edge);
+        _facade.FakeCurrent = edge;
+
+        service.Refresh();
+        _time.Advance(PastDebounce);
+
+        Assert.Equal("EdgeSong", service.Current?.Title);
+        Assert.Equal(0, spotify.MediaPropertiesSubscriberCount);
+        Assert.Equal(1, edge.MediaPropertiesSubscriberCount);
     }
 
     // --- Sessions listing ---

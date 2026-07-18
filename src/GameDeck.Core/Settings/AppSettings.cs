@@ -6,7 +6,8 @@ public sealed class AppSettings
 {
     public int Version { get; set; } = 1;
 
-    public bool StartWithWindows { get; set; }
+    // Note: "start with Windows" is deliberately NOT here. The HKCU Run key
+    // is the single source of truth; mirroring it would drift.
 
     /// <summary>Pinned media source app id; null follows the system current session.</summary>
     public string? PreferredAppId { get; set; }

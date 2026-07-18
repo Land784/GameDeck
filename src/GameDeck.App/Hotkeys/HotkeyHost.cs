@@ -17,6 +17,7 @@ public sealed class HotkeyHost : IDisposable
 
     private readonly HwndSource _source;
     private readonly List<HotkeyAction> _registered = new();
+    private IReadOnlyList<HotkeyBinding> _lastBindings = Array.Empty<HotkeyBinding>();
 
     public event Action<HotkeyAction>? HotkeyPressed;
 
@@ -39,9 +40,10 @@ public sealed class HotkeyHost : IDisposable
     public IReadOnlyList<HotkeyAction> Register(IEnumerable<HotkeyBinding> bindings)
     {
         UnregisterAll();
+        _lastBindings = bindings.ToList();
 
         var conflicts = new List<HotkeyAction>();
-        foreach (var binding in bindings)
+        foreach (var binding in _lastBindings)
         {
             var ok = NativeMethods.RegisterHotKey(
                 _source.Handle,
@@ -58,6 +60,12 @@ public sealed class HotkeyHost : IDisposable
         Conflicts = conflicts;
         return Conflicts;
     }
+
+    /// <summary>
+    /// Re-registers the last binding set. Windows can silently drop
+    /// registrations across lock/unlock and shell restarts.
+    /// </summary>
+    public IReadOnlyList<HotkeyAction> ReRegister() => Register(_lastBindings);
 
     private void UnregisterAll()
     {

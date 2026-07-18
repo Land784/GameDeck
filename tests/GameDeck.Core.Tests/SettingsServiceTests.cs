@@ -20,7 +20,7 @@ public class SettingsServiceTests : IDisposable
         var settings = service.Load();
 
         Assert.Equal(1, settings.Version);
-        Assert.False(settings.StartWithWindows);
+        Assert.Null(settings.PreferredAppId);
         Assert.Equal(HotkeyBinding.Defaults.Count, settings.Hotkeys.Count);
     }
 
@@ -29,14 +29,12 @@ public class SettingsServiceTests : IDisposable
     {
         var service = new SettingsService(_dir);
         service.Load();
-        service.Current.StartWithWindows = true;
         service.Current.PreferredAppId = "Spotify.exe";
         service.Current.Hotkeys[0] = service.Current.Hotkeys[0] with { VirtualKey = 0x42 };
         service.Save();
 
         var reloaded = new SettingsService(_dir).Load();
 
-        Assert.True(reloaded.StartWithWindows);
         Assert.Equal("Spotify.exe", reloaded.PreferredAppId);
         Assert.Equal(0x42u, reloaded.Hotkeys[0].VirtualKey);
     }
@@ -58,10 +56,10 @@ public class SettingsServiceTests : IDisposable
         var service = new SettingsService(_dir);
         service.Load();
         service.Save();
-        service.Current.StartWithWindows = true;
+        service.Current.PreferredAppId = "MSEdge";
         service.Save();
 
-        Assert.True(new SettingsService(_dir).Load().StartWithWindows);
+        Assert.Equal("MSEdge", new SettingsService(_dir).Load().PreferredAppId);
         Assert.False(File.Exists(Path.Combine(_dir, "settings.json.tmp")));
     }
 }
