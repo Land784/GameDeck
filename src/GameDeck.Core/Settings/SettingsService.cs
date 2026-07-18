@@ -8,6 +8,8 @@ namespace GameDeck.Core.Settings;
 /// <summary>
 /// JSON settings at %APPDATA%\GameDeck\settings.json. Loads defaults when the
 /// file is missing or unreadable; saves atomically (temp file + replace).
+/// All writes go through <see cref="Update"/> so mutate-and-persist is one
+/// operation and concurrent writers can't lose updates.
 /// </summary>
 public sealed class SettingsService
 {
@@ -19,6 +21,7 @@ public sealed class SettingsService
 
     private readonly string _filePath;
     private readonly ILogger _logger;
+    private readonly object _gate = new();
 
     public SettingsService(string? directory = null, ILogger? logger = null)
     {
@@ -32,29 +35,42 @@ public sealed class SettingsService
 
     public AppSettings Load()
     {
-        try
+        lock (_gate)
         {
-            if (File.Exists(_filePath))
+            try
             {
-                var loaded = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(_filePath), JsonOptions);
-                if (loaded is not null)
+                if (File.Exists(_filePath))
                 {
-                    Current = loaded;
-                    return Current;
+                    var loaded = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(_filePath), JsonOptions);
+                    if (loaded is not null)
+                    {
+                        Current = loaded;
+                        return Current;
+                    }
                 }
             }
-        }
-        catch (Exception ex)
-        {
-            // Corrupt or unreadable settings must never block startup.
-            _logger.LogWarning(ex, "Settings unreadable at {Path}; using defaults", _filePath);
-        }
+            catch (Exception ex)
+            {
+                // Corrupt or unreadable settings must never block startup.
+                _logger.LogWarning(ex, "Settings unreadable at {Path}; using defaults", _filePath);
+            }
 
-        Current = new AppSettings();
-        return Current;
+            Current = new AppSettings();
+            return Current;
+        }
     }
 
-    public void Save()
+    /// <summary>Mutates settings and persists in one atomic step.</summary>
+    public void Update(Action<AppSettings> mutate)
+    {
+        lock (_gate)
+        {
+            mutate(Current);
+            Save();
+        }
+    }
+
+    private void Save()
     {
         Directory.CreateDirectory(Path.GetDirectoryName(_filePath)!);
         var tmp = _filePath + ".tmp";

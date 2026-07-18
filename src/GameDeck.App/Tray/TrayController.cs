@@ -106,8 +106,7 @@ public sealed class TrayController : IDisposable
     private void SetPreferred(string? appId)
     {
         _media.PreferredAppId = appId;
-        _settings.Current.PreferredAppId = appId;
-        _settings.Save();
+        _settings.Update(s => s.PreferredAppId = appId);
     }
 
     private void OnSnapshotChanged(object? sender, MediaSnapshot? snapshot)
