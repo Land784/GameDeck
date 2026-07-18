@@ -44,6 +44,41 @@ function isShown(el) {
   return el.offsetParent !== null || el.getClientRects().length > 0;
 }
 
+// YouTube's player ignores a bare synthetic click() on the skip button in
+// some builds (handlers hang off pointer/mouse events, or check the event
+// source). Send the full sequence a real mouse would produce.
+function dispatchRealisticClick(el) {
+  const rect = el.getBoundingClientRect();
+  const opts = {
+    bubbles: true,
+    cancelable: true,
+    composed: true,
+    view: window,
+    button: 0,
+    clientX: rect.left + rect.width / 2,
+    clientY: rect.top + rect.height / 2,
+  };
+  const pointerOpts = { ...opts, pointerId: 1, isPrimary: true, pointerType: "mouse" };
+  el.dispatchEvent(new PointerEvent("pointerover", pointerOpts));
+  el.dispatchEvent(new PointerEvent("pointerdown", pointerOpts));
+  el.dispatchEvent(new MouseEvent("mousedown", opts));
+  el.dispatchEvent(new PointerEvent("pointerup", pointerOpts));
+  el.dispatchEvent(new MouseEvent("mouseup", opts));
+  el.dispatchEvent(new MouseEvent("click", opts));
+}
+
+// Last resort when the button swallows synthetic events entirely: jump the
+// ad video to its end. Only ever called while the skip button is showing,
+// so it does nothing the user could not do themselves.
+function seekAdToEnd() {
+  const video = document.querySelector(".html5-video-player.ad-showing video");
+  if (video && isFinite(video.duration) && video.duration > 0) {
+    video.currentTime = video.duration;
+    return true;
+  }
+  return false;
+}
+
 // --- wiring below; nothing above touches chrome.* ---
 
 let lastReported = "";
@@ -98,9 +133,20 @@ if (playerEl) {
 chrome.runtime.onMessage.addListener((message) => {
   if (message.type === "skip") {
     const button = findSkipButton(document);
-    if (button) button.click();
-    // Rescan shortly after so the app's strip reflects reality either way.
-    setTimeout(() => report(true), 300);
+    if (button) {
+      button.click();
+      dispatchRealisticClick(button);
+      console.info("[GameDeck] skip requested; clicked the skip button");
+    }
+    // Give the click a beat to land; if the ad survived it while still
+    // showing a skip button, fall back to seeking, then report reality.
+    setTimeout(() => {
+      const state = scanAdState(player());
+      if (state.adActive && state.skippable && seekAdToEnd()) {
+        console.info("[GameDeck] click was ignored; seeked ad to its end");
+      }
+      setTimeout(() => report(true), 300);
+    }, 500);
   } else if (message.type === "rescan") {
     report(true);
   }

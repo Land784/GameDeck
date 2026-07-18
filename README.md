@@ -54,9 +54,10 @@ alt-tabbing, no dropped frames.
 **Security model, honestly:** the extension and app talk over a WebSocket
 bound to 127.0.0.1 only; nothing ever leaves your machine. The pasted token
 stops other local programs from feeding the app fake ad state. On skip, the
-extension clicks the same skip button you would click, as a plain DOM
-click; it does not touch your mouse, keyboard, focus, or the game. No
-telemetry on either side.
+extension presses the same skip button you would press (and if YouTube
+ignores the synthetic press, it jumps to the end of the ad instead, but
+only while the skip button is showing). It never touches your mouse,
+keyboard, focus, or the game. No telemetry on either side.
 
 ### Try it
 
