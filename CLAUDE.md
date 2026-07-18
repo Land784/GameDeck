@@ -90,6 +90,14 @@ GameDeck.sln
 
 ## Conventions
 
+- **Branch-based development (standard practice from 2026-07-17 on).**
+  All code changes happen on a feature branch off `main`, named
+  `feat/<topic>`, `fix/<topic>`, or `chore/<topic>` (e.g.
+  `feat/phase3-bridge`). Push the branch, open a PR, let CI go green,
+  then squash-merge to keep main's history one-commit-per-change. Never
+  commit code directly to `main`. Tiny doc-only fixes may go straight to
+  main at Will's discretion. Delete branches after merge. Release tags
+  are cut from `main` only.
 - Nullable reference types enabled everywhere; treat warnings as errors in
   `GameDeck.Core`.
 - Async all the way; no `.Result`/`.Wait()`.
