@@ -45,6 +45,7 @@ public sealed class SettingsService
                     if (loaded is not null)
                     {
                         Current = loaded;
+                        EnsureGeneratedFields();
                         return Current;
                     }
                 }
@@ -56,7 +57,18 @@ public sealed class SettingsService
             }
 
             Current = new AppSettings();
+            EnsureGeneratedFields();
             return Current;
+        }
+    }
+
+    /// <summary>Post-load fixups that must persist. Called inside the gate.</summary>
+    private void EnsureGeneratedFields()
+    {
+        if (Current.BridgeToken is null)
+        {
+            Current.BridgeToken = Guid.NewGuid().ToString("N");
+            Save();
         }
     }
 

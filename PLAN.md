@@ -677,6 +677,7 @@ Files:
 | — | WPF | WinUI 3, Tauri, Electron | Transparent topmost maturity; .NET+Rider fit |
 | — | Localhost WebSocket | Native Messaging | Simpler install, app already resident |
 | — | No injection | DX hook overlay | Anti-cheat risk unacceptable |
+| 2026-07-18 | `HttpListener` for the bridge server | TcpListener + manual WS handshake | Spike confirmed non-admin bind works on `http://127.0.0.1:52780/bridge/` (loopback needs no URL ACL) |
 
 ## 12. Rough timeline (evenings/weekends pace)
 

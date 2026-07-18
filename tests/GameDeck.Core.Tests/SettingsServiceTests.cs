@@ -53,6 +53,15 @@ public class SettingsServiceTests : IDisposable
     }
 
     [Fact]
+    public void Load_GeneratesBridgeTokenOnce_AndKeepsItAcrossLoads()
+    {
+        var token = new SettingsService(_dir).Load().BridgeToken;
+
+        Assert.False(string.IsNullOrWhiteSpace(token));
+        Assert.Equal(token, new SettingsService(_dir).Load().BridgeToken);
+    }
+
+    [Fact]
     public void Save_OverExistingFile_Replaces()
     {
         var service = new SettingsService(_dir);
