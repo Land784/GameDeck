@@ -4,6 +4,10 @@
     <ProjectReference Include="..\GameDeck.Core\GameDeck.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="H.NotifyIcon.Wpf" Version="2.3.0" />
+  </ItemGroup>
+
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
