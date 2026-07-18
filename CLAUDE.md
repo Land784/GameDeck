@@ -127,19 +127,15 @@ sessions. Rules:
 
 ## Current status / next step
 
-Phase 1 complete — v0.1.0 (invisible MVP) then v0.1.1 (hardening from a
-design review): SMTC media engine with session picker + debounce in Core
-(31 unit tests), snapshot events split from interpolated timeline, global
-hotkeys with unlock re-registration, tray icon (H.NotifyIcon.Wpf pinned to
-2.3.0 — 2.4.1 has no net8.0 target), per-session single-instance mutex,
-JSON settings (registry is sole owner of start-with-Windows), Serilog file
-logging in %APPDATA%\GameDeck\logs.
+Phase 1 shipped (v0.1.0 + v0.1.1 hardening). Phase 2 CORE done and
+verified: overlay card (art/title/artist/progress) with TDD auto-hide
+state machine in Core, Ctrl+Alt+O/I wired, click-through + failsafes.
+42 Core tests. Tray icon pinned to H.NotifyIcon.Wpf 2.3.0 (2.4.1 has no
+net8.0 target).
 
-Decisions locked for Phase 2 (from the review): pinned media source stays
-sticky when its app closes and shows "(not running)" grayed in the picker;
-second launch triggers an "already running" balloon from the first
-instance via named event; SMTC manager-loss watchdog stays deferred until
-logs show it actually occurring.
+Next: Phase 3 (ad-skip bridge) pulled forward ahead of Phase 2 polish.
+The full step-by-step plan for everything remaining lives in the newest
+handoffs/ file — read it first, always.
 
 Next: Phase 2 — the overlay. OverlayWindow (transparent/topmost/click-through),
 z-order guard, auto-hide state machine, interactivity toggle, settings window.
