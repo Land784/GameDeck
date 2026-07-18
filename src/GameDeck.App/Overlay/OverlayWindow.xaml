@@ -1,0 +1,66 @@
+<Window x:Class="GameDeck.App.Overlay.OverlayWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Width="320" Height="96"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        Topmost="True" ShowInTaskbar="False" ResizeMode="NoResize"
+        ShowActivated="False" Focusable="False"
+        Opacity="0">
+    <Border CornerRadius="12" Background="#D9101014" BorderThickness="1">
+        <Border.Style>
+            <Style TargetType="Border">
+                <Setter Property="BorderBrush" Value="Transparent" />
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding IsInteractive}" Value="True">
+                        <Setter Property="BorderBrush" Value="#804FC3F7" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </Border.Style>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Margin="12,12,12,6">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="64" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Width="64" Height="64" CornerRadius="8"
+                        Background="#22FFFFFF" ClipToBounds="True">
+                    <Grid>
+                        <Image Source="{Binding ArtImage}" Stretch="UniformToFill"
+                               Visibility="{Binding ArtVisibility}" />
+                        <TextBlock Text="♪" FontSize="28" Foreground="#66FFFFFF"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   Visibility="{Binding FallbackVisibility}" />
+                    </Grid>
+                </Border>
+
+                <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Title}" Foreground="White"
+                               FontSize="14" FontWeight="SemiBold"
+                               TextTrimming="CharacterEllipsis"
+                               TextOptions.TextFormattingMode="Display" />
+                    <TextBlock Text="{Binding Artist}" Foreground="#FFB0B0B8"
+                               FontSize="12" Margin="0,2,0,0"
+                               TextTrimming="CharacterEllipsis"
+                               TextOptions.TextFormattingMode="Display" />
+                </StackPanel>
+            </Grid>
+
+            <Border Grid.Row="1" Height="2" Margin="12,0,12,10"
+                    Background="#22FFFFFF" CornerRadius="1" ClipToBounds="True">
+                <Rectangle Fill="#FF4FC3F7" RenderTransformOrigin="0,0.5">
+                    <Rectangle.RenderTransform>
+                        <ScaleTransform ScaleX="{Binding Progress}" />
+                    </Rectangle.RenderTransform>
+                </Rectangle>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

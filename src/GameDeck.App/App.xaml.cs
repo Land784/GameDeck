@@ -1,9 +1,11 @@
 using System.IO;
 using System.Windows;
 using GameDeck.App.Hotkeys;
+using GameDeck.App.Overlay;
 using GameDeck.App.Tray;
 using GameDeck.Core.Hotkeys;
 using GameDeck.Core.Media;
+using GameDeck.Core.Overlay;
 using GameDeck.Core.Settings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
@@ -19,6 +21,7 @@ public partial class App : Application
     private MediaSessionService? _media;
     private HotkeyHost? _hotkeys;
     private TrayController? _tray;
+    private OverlayController? _overlay;
     private SettingsService? _settings;
     private ILogger? _log;
 
@@ -57,7 +60,13 @@ public partial class App : Application
         if (conflicts.Count > 0)
             _log.LogWarning("Hotkey conflicts at startup: {Conflicts}", string.Join(", ", conflicts));
 
-        _tray = new TrayController(_media, _settings);
+        _overlay = new OverlayController(
+            _media,
+            new OverlayStateMachine(TimeProvider.System, OverlayTimings.Default),
+            OverlayTimings.Default,
+            loggerFactory.CreateLogger<OverlayController>());
+
+        _tray = new TrayController(_media, _settings, () => _overlay?.Reset());
 
         SystemEvents.SessionSwitch += OnSessionSwitch;
 
@@ -149,7 +158,13 @@ public partial class App : Application
             case HotkeyAction.PreviousTrack:
                 _ = _media.PreviousAsync();
                 break;
-            // ToggleOverlay / ToggleInteractivity land in Phase 2, SkipAd in Phase 3.
+            case HotkeyAction.ToggleOverlay:
+                _overlay?.ToggleVisibility();
+                break;
+            case HotkeyAction.ToggleInteractivity:
+                _overlay?.ToggleInteractivity();
+                break;
+            // SkipAd lands in Phase 3.
         }
     }
 
@@ -157,6 +172,7 @@ public partial class App : Application
     {
         SystemEvents.SessionSwitch -= OnSessionSwitch;
         _tray?.Dispose();
+        _overlay?.Dispose();
         _hotkeys?.Dispose();
         _ = _media?.DisposeAsync();
         _instanceMutex?.Dispose();

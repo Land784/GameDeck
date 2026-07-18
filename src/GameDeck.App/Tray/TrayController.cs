@@ -16,13 +16,15 @@ public sealed class TrayController : IDisposable
     private readonly TaskbarIcon _icon;
     private readonly IMediaSessionService _media;
     private readonly SettingsService _settings;
+    private readonly Action _resetOverlay;
     private readonly Dispatcher _dispatcher;
     private readonly MenuItem _sourceMenu;
 
-    public TrayController(IMediaSessionService media, SettingsService settings)
+    public TrayController(IMediaSessionService media, SettingsService settings, Action resetOverlay)
     {
         _media = media;
         _settings = settings;
+        _resetOverlay = resetOverlay;
         _dispatcher = Dispatcher.CurrentDispatcher;
 
         _sourceMenu = new MenuItem { Header = "Media source" };
@@ -61,6 +63,8 @@ public sealed class TrayController : IDisposable
         // The Run key is the single source of truth; nothing mirrored to settings.
         startup.Click += (_, _) => StartupManager.SetEnabled(startup.IsChecked);
         menu.Items.Add(startup);
+
+        menu.Items.Add(MakeItem("Reset overlay", () => _resetOverlay()));
 
         menu.Items.Add(new Separator());
         menu.Items.Add(MakeItem("Exit", () => Application.Current.Shutdown()));

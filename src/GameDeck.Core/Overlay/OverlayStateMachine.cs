@@ -23,14 +23,17 @@ public sealed record OverlayTimings(TimeSpan FadeIn, TimeSpan VisibleDuration, T
 /// <summary>
 /// The overlay's auto-hide brain. All timing lives here, driven by
 /// <see cref="TimeProvider"/>, so the WPF window is a dumb adapter that maps
-/// states to animations. Not thread-safe by design intent of callers: drive
-/// it from one context (the UI thread); events are raised synchronously.
+/// states to animations. Inputs may come from any thread (the internal timer
+/// fires on the threadpool); transitions are serialized internally and
+/// <see cref="StateChanged"/> is raised synchronously on whichever thread
+/// caused the transition.
 /// </summary>
 public sealed class OverlayStateMachine : IDisposable
 {
     private readonly TimeProvider _time;
     private readonly OverlayTimings _timings;
     private readonly ITimer _timer;
+    private readonly object _sync = new();
 
     public OverlayStateMachine(TimeProvider time, OverlayTimings timings)
     {
@@ -51,76 +54,94 @@ public sealed class OverlayStateMachine : IDisposable
 
     public void NotifyTrackChanged()
     {
-        switch (State)
+        lock (_sync)
         {
-            case OverlayState.Visible:
-                // Already showing: just restart the countdown, no re-fade.
-                _timer.Change(VisibleTimeout, Timeout.InfiniteTimeSpan);
-                break;
-            case OverlayState.FadingIn:
-                break; // Already appearing.
-            default:
-                TransitionTo(OverlayState.FadingIn, _timings.FadeIn);
-                break;
+            switch (State)
+            {
+                case OverlayState.Visible:
+                    // Already showing: just restart the countdown, no re-fade.
+                    _timer.Change(VisibleTimeout, Timeout.InfiniteTimeSpan);
+                    break;
+                case OverlayState.FadingIn:
+                    break; // Already appearing.
+                default:
+                    TransitionTo(OverlayState.FadingIn, _timings.FadeIn);
+                    break;
+            }
         }
     }
 
     public void SetInteractive(bool interactive)
     {
-        IsInteractive = interactive;
-        switch (State)
+        lock (_sync)
         {
-            case OverlayState.Visible:
-                _timer.Change(VisibleTimeout, Timeout.InfiniteTimeSpan);
-                break;
-            case OverlayState.Hidden:
-            case OverlayState.FadingOut:
-                if (interactive)
-                    TransitionTo(OverlayState.FadingIn, _timings.FadeIn);
-                break;
+            IsInteractive = interactive;
+            switch (State)
+            {
+                case OverlayState.Visible:
+                    _timer.Change(VisibleTimeout, Timeout.InfiniteTimeSpan);
+                    break;
+                case OverlayState.Hidden:
+                case OverlayState.FadingOut:
+                    if (interactive)
+                        TransitionTo(OverlayState.FadingIn, _timings.FadeIn);
+                    break;
+            }
         }
     }
 
     public void PointerEntered()
     {
-        if (State == OverlayState.Visible)
-            _timer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+        lock (_sync)
+        {
+            if (State == OverlayState.Visible)
+                _timer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+        }
     }
 
     public void PointerExited()
     {
-        if (State == OverlayState.Visible)
-            _timer.Change(VisibleTimeout, Timeout.InfiniteTimeSpan);
+        lock (_sync)
+        {
+            if (State == OverlayState.Visible)
+                _timer.Change(VisibleTimeout, Timeout.InfiniteTimeSpan);
+        }
     }
 
     public void ToggleVisibility()
     {
-        switch (State)
+        lock (_sync)
         {
-            case OverlayState.Hidden:
-            case OverlayState.FadingOut:
-                TransitionTo(OverlayState.FadingIn, _timings.FadeIn);
-                break;
-            case OverlayState.FadingIn:
-            case OverlayState.Visible:
-                TransitionTo(OverlayState.FadingOut, _timings.FadeOut);
-                break;
+            switch (State)
+            {
+                case OverlayState.Hidden:
+                case OverlayState.FadingOut:
+                    TransitionTo(OverlayState.FadingIn, _timings.FadeIn);
+                    break;
+                case OverlayState.FadingIn:
+                case OverlayState.Visible:
+                    TransitionTo(OverlayState.FadingOut, _timings.FadeOut);
+                    break;
+            }
         }
     }
 
     private void OnTimerFired()
     {
-        switch (State)
+        lock (_sync)
         {
-            case OverlayState.FadingIn:
-                TransitionTo(OverlayState.Visible, VisibleTimeout);
-                break;
-            case OverlayState.Visible:
-                TransitionTo(OverlayState.FadingOut, _timings.FadeOut);
-                break;
-            case OverlayState.FadingOut:
-                TransitionTo(OverlayState.Hidden, Timeout.InfiniteTimeSpan);
-                break;
+            switch (State)
+            {
+                case OverlayState.FadingIn:
+                    TransitionTo(OverlayState.Visible, VisibleTimeout);
+                    break;
+                case OverlayState.Visible:
+                    TransitionTo(OverlayState.FadingOut, _timings.FadeOut);
+                    break;
+                case OverlayState.FadingOut:
+                    TransitionTo(OverlayState.Hidden, Timeout.InfiniteTimeSpan);
+                    break;
+            }
         }
     }
 
