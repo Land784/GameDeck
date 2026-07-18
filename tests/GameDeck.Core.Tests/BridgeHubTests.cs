@@ -106,6 +106,27 @@ public class BridgeHubTests
     }
 
     [Fact]
+    public async Task ExtensionConnected_TracksFirstAuthAndLastDisconnect()
+    {
+        var seen = new List<bool>();
+        _hub.ExtensionConnectedChanged += (_, connected) => seen.Add(connected);
+        Assert.False(_hub.ExtensionConnected);
+
+        await ConnectAndAuthenticateAsync("conn1");
+        await ConnectAndAuthenticateAsync("conn2");
+
+        Assert.True(_hub.ExtensionConnected);
+        Assert.Equal([true], seen);
+
+        _hub.OnDisconnected("conn1");
+        Assert.True(_hub.ExtensionConnected);
+
+        _hub.OnDisconnected("conn2");
+        Assert.False(_hub.ExtensionConnected);
+        Assert.Equal([true, false], seen);
+    }
+
+    [Fact]
     public async Task Heartbeat_PingsAuthenticatedConnectionsEachInterval()
     {
         var conn = await ConnectAndAuthenticateAsync();

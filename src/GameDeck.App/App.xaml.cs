@@ -2,6 +2,7 @@ using System.IO;
 using System.Windows;
 using GameDeck.App.Hotkeys;
 using GameDeck.App.Overlay;
+using GameDeck.App.Settings;
 using GameDeck.App.Tray;
 using GameDeck.Core.Bridge;
 using GameDeck.Core.Hotkeys;
@@ -71,7 +72,7 @@ public partial class App : Application
             _settings,
             loggerFactory.CreateLogger<OverlayController>());
 
-        _tray = new TrayController(_media, _settings, () => _overlay?.Reset());
+        _tray = new TrayController(_media, _settings, () => _overlay?.Reset(), OpenSettings);
 
         SystemEvents.SessionSwitch += OnSessionSwitch;
 
@@ -149,6 +150,23 @@ public partial class App : Application
                 "GameDeck hotkey conflict",
                 $"Already taken by another app: {string.Join(", ", conflicts)}.");
         }
+    }
+
+    private SettingsWindow? _settingsWindow;
+
+    private void OpenSettings()
+    {
+        if (_settingsWindow is not null)
+        {
+            _settingsWindow.Activate();
+            return;
+        }
+        if (_settings is null || _hotkeys is null || _media is null || _overlay is null)
+            return;
+
+        _settingsWindow = new SettingsWindow(_settings, _hotkeys, _media, _overlay, () => _bridge);
+        _settingsWindow.Closed += (_, _) => _settingsWindow = null;
+        _settingsWindow.Show();
     }
 
     private void StartBridge()

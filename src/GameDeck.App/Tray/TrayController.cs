@@ -17,14 +17,17 @@ public sealed class TrayController : IDisposable
     private readonly IMediaSessionService _media;
     private readonly SettingsService _settings;
     private readonly Action _resetOverlay;
+    private readonly Action _openSettings;
     private readonly Dispatcher _dispatcher;
     private readonly MenuItem _sourceMenu;
 
-    public TrayController(IMediaSessionService media, SettingsService settings, Action resetOverlay)
+    public TrayController(
+        IMediaSessionService media, SettingsService settings, Action resetOverlay, Action openSettings)
     {
         _media = media;
         _settings = settings;
         _resetOverlay = resetOverlay;
+        _openSettings = openSettings;
         _dispatcher = Dispatcher.CurrentDispatcher;
 
         _sourceMenu = new MenuItem { Header = "Media source" };
@@ -64,6 +67,7 @@ public sealed class TrayController : IDisposable
         startup.Click += (_, _) => StartupManager.SetEnabled(startup.IsChecked);
         menu.Items.Add(startup);
 
+        menu.Items.Add(MakeItem("Settings…", () => _openSettings()));
         menu.Items.Add(MakeItem("Reset overlay", () => _resetOverlay()));
 
         // Until the settings window exists, this is how the token reaches

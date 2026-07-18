@@ -37,6 +37,16 @@ public sealed class AdBridgeServer : IDisposable
     /// <summary>The bound port, or null when the server is not running.</summary>
     public int? Port { get; private set; }
 
+    /// <summary>True while an authenticated extension is connected.</summary>
+    public bool ExtensionConnected => _hub.ExtensionConnected;
+
+    /// <summary>Raised from worker threads; marshal before touching UI.</summary>
+    public event EventHandler<bool>? ExtensionConnectedChanged
+    {
+        add => _hub.ExtensionConnectedChanged += value;
+        remove => _hub.ExtensionConnectedChanged -= value;
+    }
+
     /// <summary>Sends a skip for the currently active ad; no-op when there is none.</summary>
     public Task SendSkipAsync() => _hub.SendSkipAsync();
 

@@ -111,6 +111,9 @@ public sealed class OverlayController : IDisposable
             monitor.DeviceName, corner, offsetX, offsetY);
     }
 
+    /// <summary>Pops the card briefly so settings changes are visible immediately.</summary>
+    public void Preview() => _machine.NotifyTrackChanged();
+
     /// <summary>Settings window applied changes: re-derive timings, opacity, position.</summary>
     public void ApplySettingsChanged()
     {

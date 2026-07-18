@@ -29,6 +29,24 @@ public sealed class BridgeHub : IDisposable
         _heartbeat = _time.CreateTimer(_ => OnHeartbeat(), null, HeartbeatInterval, HeartbeatInterval);
     }
 
+    /// <summary>True while at least one authenticated extension socket is open.</summary>
+    public bool ExtensionConnected { get; private set; }
+
+    public event EventHandler<bool>? ExtensionConnectedChanged;
+
+    private void UpdateExtensionConnected()
+    {
+        bool connected;
+        lock (_sync)
+        {
+            connected = _connections.Values.Any(c => c.Authenticated);
+            if (connected == ExtensionConnected)
+                return;
+            ExtensionConnected = connected;
+        }
+        ExtensionConnectedChanged?.Invoke(this, connected);
+    }
+
     public void OnConnected(IBridgeConnection connection)
     {
         lock (_sync)
@@ -56,6 +74,7 @@ public sealed class BridgeHub : IDisposable
             if (message is HelloMessage hello && hello.Token == _expectedToken)
             {
                 state.Authenticated = true;
+                UpdateExtensionConnected();
                 await state.Connection.SendAsync(BridgeMessage.Serialize(new HelloAckMessage()));
             }
             else
@@ -94,6 +113,7 @@ public sealed class BridgeHub : IDisposable
                 return;
         }
         _tracker.OnConnectionClosed(connectionId);
+        UpdateExtensionConnected();
         await state.Connection.CloseAsync();
     }
 
@@ -142,6 +162,7 @@ public sealed class BridgeHub : IDisposable
             _connections.Remove(connectionId);
         }
         _tracker.OnConnectionClosed(connectionId);
+        UpdateExtensionConnected();
     }
 
     private readonly object _sync = new();
