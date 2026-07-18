@@ -5,10 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.3.0] - 2026-07-18
 
-Ships as v0.3.0 once the ad-skip flow is verified against a live YouTube
-ad. Contains the Phase 2 overlay core and the Phase 3 ad-skip bridge.
+The Phase 2 overlay core and the Phase 3 ad-skip bridge, verified against
+live YouTube ads. The browser extension ships in-repo; the Chrome Web
+Store listing is submitted separately and takes days to review.
 
 ### Added
 
@@ -31,6 +32,10 @@ ad. Contains the Phase 2 overlay core and the Phase 3 ad-skip bridge.
 
 - The overlay card grows a bottom strip only while an ad is active; the
   ad keeps the overlay visible until the ad ends.
+- Skipping is resilient to YouTube ignoring synthetic clicks: the
+  extension sends a full pointer event sequence and, if the ad survives
+  with the skip button still up, jumps to the end of the ad instead
+  (only ever while the ad is already skippable).
 
 ## [0.1.1] - 2026-07-17
 
@@ -78,6 +83,6 @@ The "invisible MVP": full media control without a visible window.
 - Single-instance guard; settings persisted to
   `%APPDATA%\GameDeck\settings.json` with atomic saves.
 
-[Unreleased]: https://github.com/Land784/GameDeck/compare/v0.1.1...HEAD
+[0.3.0]: https://github.com/Land784/GameDeck/compare/v0.1.1...v0.3.0
 [0.1.1]: https://github.com/Land784/GameDeck/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/Land784/GameDeck/releases/tag/v0.1.0

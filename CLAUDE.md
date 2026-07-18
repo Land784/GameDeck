@@ -204,7 +204,8 @@ tests), overlay ad strip + Ctrl+Alt+S wired and verified live against a
 scripted fake extension, MV3 extension in `extension/`. Tray icon pinned
 to H.NotifyIcon.Wpf 2.3.0 (2.4.1 has no net8.0 target).
 
-Next, in order: verify extension selectors against a real YouTube ad
-(load `extension/` unpacked), Chrome Web Store submission (Will's
-account), PR + squash-merge, tag v0.3.0. Then Phase 2 polish (Session B
-in the newest handoffs/ file — read it first, always).
+Phase 3 verified against live YouTube ads (both skip paths: synthetic
+click and seek fallback) and released as v0.3.0. Remaining Phase 3
+loose ends: Chrome Web Store submission (Will's account, $5) and the
+demo GIF. Next: Phase 2 polish (Session B in the newest handoffs/
+file — read it first, always).
