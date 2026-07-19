@@ -204,8 +204,14 @@ tests), overlay ad strip + Ctrl+Alt+S wired and verified live against a
 scripted fake extension, MV3 extension in `extension/`. Tray icon pinned
 to H.NotifyIcon.Wpf 2.3.0 (2.4.1 has no net8.0 target).
 
-Phase 3 verified against live YouTube ads (both skip paths: synthetic
-click and seek fallback) and released as v0.3.0. Remaining Phase 3
-loose ends: Chrome Web Store submission (Will's account, $5) and the
-demo GIF. Next: Phase 2 polish (Session B in the newest handoffs/
-file — read it first, always).
+v0.3.0 released (overlay core + ad-skip bridge, live-ad verified).
+Chrome Web Store submission DEFERRED to v1.0 (Will's call); extension
+is load-unpacked until then. Phase 2 polish BUILT on
+`feat/phase2-polish` (PR #2): DPI V2 manifest, overlay position/opacity
+persistence with corner snapping, settings window, second-instance
+balloon, grayed not-running pin. 96 Core tests.
+
+Next: Will fills docs/testing-matrix.md (real games, drag, mixed-DPI),
+fix fallout, squash-merge PR #2, bump version, tag v0.5.0, demo GIF.
+Then Phase 4 (Session C in the newest handoffs/ file — read it first,
+always).

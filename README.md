@@ -29,7 +29,11 @@ alt-tabbing, no dropped frames.
 - **In-game overlay**: a small translucent card (album art, title, artist,
   progress) that fades in on track changes and hides itself after a few
   seconds. Click-through by default, so your game never loses input. Works
-  over borderless and most modern fullscreen games.
+  over borderless and most modern fullscreen games. Drag it where you want
+  it (Ctrl+Alt+I) and it stays there, per monitor.
+- **Settings window** (right-click the tray icon): overlay opacity,
+  auto-hide delay, corner presets, hotkey rebinding with conflict
+  warnings, media source pinning, and the extension token.
 - **YouTube ad-skip**: with the companion browser extension installed, the
   overlay shows a strip when an ad is playing in a background YouTube tab
   (amber while unskippable, green when the skip button is up), and
