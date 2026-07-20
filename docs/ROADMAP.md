@@ -6,7 +6,7 @@ CLAUDE.md defines HOW to work (constraints, conventions, protocol);
 PLAN.md holds the original deep design (reference, not sequencing).
 When this file and PLAN.md disagree about sequencing, this file wins.
 
-Last updated: 2026-07-19 (v0.5.0 released).
+Last updated: 2026-07-20 (P4-5 icon wired).
 
 ## Rules of engagement — read before doing anything
 
@@ -96,9 +96,16 @@ Last updated: 2026-07-19 (v0.5.0 released).
       friendly idle line. Max 3 tooltips total (PLAN 8.3). No wizard.
       DoD: delete settings.json → first launch shows the tour once;
       second launch does not.
-- [ ] **P4-5. Real app icon.** Replace the generated tray icon with a
-      designed .ico (exe icon + tray + balloon). Keep it legible at
-      16 px. Will approves the look before merge.
+- [x] **P4-5. Real app icon.** (Done 2026-07-20: app.ico (8 sizes
+      16-256, 32bpp) wired into exe via `<ApplicationIcon>`, tray +
+      balloon via `TrayIconFactory` loading app.ico @16, and the settings
+      window title bar / Alt-Tab via `Icon=`. Build clean; exe-embedded
+      icon and 16 px render verified to show the new GameDeck logo. Overlay
+      recolored to match + extension PNGs refreshed, per Proposed changes.
+      Pulled forward ahead of P4-3/P4-4 at Will's request; his in-situ
+      look sign-off is the last gate before merge.) Replace the generated
+      tray icon with a designed .ico (exe icon + tray + balloon). Keep it
+      legible at 16 px. Will approves the look before merge.
       ASSETS READY (2026-07-19): Will supplied the design; generated
       files live in `C:\Users\wesch\Downloads\GameDeckIcons\` — app.ico
       (8 sizes, verified), icon16/48/128.png for the extension (V1-2),
@@ -168,5 +175,11 @@ underway, and only with Will's explicit go.
 
 ## Proposed changes
 
-(Empty. Sessions append proposals here instead of doing unlisted work;
-Will approves or rejects.)
+- **2026-07-20 — Overlay accent + extension icons bundled into P4-5
+  (APPROVED by Will).** The `feat/phase4-icon-theme` branch, beyond
+  P4-5's "wiring only" scope, also recolors the overlay accent (interactive
+  border + progress bar) from cyan `#4FC3F7` to purple `#9333FD` to match
+  the new icon, and refreshes the extension PNGs (icon16/48/128, normally
+  V1-2 scope). Will approved keeping both in the P4-5 PR. Logged in PLAN.md
+  section 11. Note: P4-5 was pulled forward ahead of P4-3/P4-4 because Will
+  had started the icon branch; P4-3 and P4-4 resume in order after it.
