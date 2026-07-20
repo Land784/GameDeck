@@ -26,6 +26,8 @@ public partial class App : Application
     private RegisteredWaitHandle? _activateWait;
     private MediaSessionService? _media;
     private HotkeyHost? _hotkeys;
+    private HotkeyFallbackMatcher? _fallbackMatcher;
+    private KeyboardHookHost? _keyboardHook;
     private TrayController? _tray;
     private OverlayController? _overlay;
     private SettingsService? _settings;
@@ -73,11 +75,15 @@ public partial class App : Application
             PreferredAppId = _settings.Current.PreferredAppId,
         };
 
+        _fallbackMatcher = new HotkeyFallbackMatcher();
         _hotkeys = new HotkeyHost();
-        _hotkeys.HotkeyPressed += OnHotkeyPressed;
+        _hotkeys.HotkeyPressed += OnRegisteredHotkeyPressed;
+        _hotkeys.BindingsRegistered += _fallbackMatcher.SetBindings;
         var conflicts = _hotkeys.Register(_settings.Current.Hotkeys);
         if (conflicts.Count > 0)
             _log.LogWarning("Hotkey conflicts at startup: {Conflicts}", string.Join(", ", conflicts));
+        _keyboardHook = new KeyboardHookHost(
+            _fallbackMatcher, OnHotkeyPressed, loggerFactory.CreateLogger<KeyboardHookHost>());
 
         _overlay = new OverlayController(
             _media,
@@ -145,6 +151,7 @@ public partial class App : Application
             var conflicts = _hotkeys?.ReRegister() ?? Array.Empty<HotkeyAction>();
             if (conflicts.Count > 0)
                 _log?.LogWarning("Hotkey conflicts after unlock: {Conflicts}", string.Join(", ", conflicts));
+            _keyboardHook?.Reinstall();
             _media?.Refresh();
         });
     }
@@ -207,6 +214,13 @@ public partial class App : Application
         _bridge.Start();
     }
 
+    // WM_HOTKEY path: suppress if the low-level hook already fired it.
+    private void OnRegisteredHotkeyPressed(HotkeyAction action)
+    {
+        if (_fallbackMatcher?.OnRegisteredHotkey(action) ?? true)
+            OnHotkeyPressed(action);
+    }
+
     private void OnHotkeyPressed(HotkeyAction action)
     {
         if (_media is null) return;
@@ -242,6 +256,7 @@ public partial class App : Application
         _bridge?.Dispose();
         _tray?.Dispose();
         _overlay?.Dispose();
+        _keyboardHook?.Dispose();
         _hotkeys?.Dispose();
         _ = _media?.DisposeAsync();
         _instanceMutex?.Dispose();
