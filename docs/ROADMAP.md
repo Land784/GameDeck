@@ -6,7 +6,7 @@ CLAUDE.md defines HOW to work (constraints, conventions, protocol);
 PLAN.md holds the original deep design (reference, not sequencing).
 When this file and PLAN.md disagree about sequencing, this file wins.
 
-Last updated: 2026-07-20 (P4-7 release prep).
+Last updated: 2026-07-20 (v0.9.0 built, draft awaiting publish).
 
 ## Rules of engagement — read before doing anything
 
@@ -153,18 +153,17 @@ Last updated: 2026-07-20 (P4-7 release prep).
       the exclusive-fullscreen overlay limitation and issue #3 status.
       DoD: a stranger can install and use it from README alone; Will
       read it once.
-- [ ] **P4-7. Release v0.9.0.** PREP DONE 2026-07-20 (branch
-      `chore/release-0.9.0` / this PR): CHANGELOG [0.9.0] section written
-      (P4-1..P4-6, #3 moved to Fixed) with compare link; version bumped
-      0.5.0 -> 0.9.0 in `Directory.Build.props`; build clean. REMAINING
-      (Will, cannot be automated here): squash-merge this PR; then follow
-      the CLAUDE.md release motion tail: `git fetch --prune`, tag `v0.9.0`
-      on main, push the tag -> release.yml (P4-1) builds the self-contained
-      zip and creates the pre-release. Then verify the asset attached and
-      smoke-test the downloaded zip on a clean PATH (run it, confirm the
-      "GameDeck 0.9.0 starting" log line). Note: GIFs/recordings are
-      deliberately deferred to the v1.0 run (Will), so v0.9.0 ships with
-      the README placeholders.
+- [ ] **P4-7. Release v0.9.0.** BUILT + VERIFIED 2026-07-20, one step left
+      (Will publishes the draft). Done: PR #10 (CHANGELOG [0.9.0] with
+      P4-1..P4-6 and #3 moved to Fixed + compare link; version 0.5.0 ->
+      0.9.0) merged to main (`17928ea`); tag `v0.9.0` pushed;
+      release.yml built `GameDeck-0.9.0-win-x64.zip` (74,793,929 bytes,
+      self-contained); verified exe stamps `0.9.0+17928ea`, at zip root,
+      downloaded build logs "GameDeck 0.9.0 starting". The release is a
+      DRAFT pre-release (release.yml creates drafts on purpose).
+      REMAINING to check this box: Will adds release notes and PUBLISHES
+      the draft (then it is "live"). GIFs/recordings are deferred to the
+      v1.0 run, so v0.9.0 ships with the README placeholders.
       CHANGELOG (move Known issues forward
       if #3 is fixed — it should be by P4-2), bump version, branch
       merge, tag; release now happens via release.yml (P4-1) — verify
