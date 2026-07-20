@@ -701,3 +701,8 @@ Files:
 - Firefox extension port (WebSocket code is identical; manifest differs).
 - Lyrics line via a lyrics API (scope check hard before committing).
 - Localization (resx) if issues arrive in other languages.
+- Settings window visual polish (post-v1.0 nicety): restyle the default
+  light WPF chrome into a dark theme matching the overlay and app icon
+  (dark background, purple `#9333FD` accent), with consistent spacing and
+  styled controls. Pure UI/UX, no functional changes. Verify per-tab with
+  the RenderTargetBitmap trick in CLAUDE.md.
