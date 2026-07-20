@@ -242,14 +242,12 @@ How to approach any change in this repo, before and while writing code.
 - **Phase 4 complete on main** (tip `17928ea`). Merged: P4-1 release
   workflow, P4-2 hotkey fallback, P4-3 crash dialog, P4-4 first-run
   onboarding, P4-5 real app icon, P4-6 docs rewrite. 107 Core tests.
-- **v0.9.0 built and verified, as a DRAFT pre-release awaiting publish.**
-  Tag `v0.9.0` on `17928ea` triggered release.yml, which created a draft
-  pre-release with `GameDeck-0.9.0-win-x64.zip` (74,793,929 bytes,
-  self-contained single-file). Verified: exe stamps `0.9.0+17928ea`, sits
-  at zip root, and the downloaded build logs "GameDeck 0.9.0 starting".
-  release.yml intentionally leaves it a DRAFT so Will adds notes and
-  publishes. **Next: Will edits notes and publishes the draft; then check
-  ROADMAP P4-7.**
+- **v0.9.0 RELEASED** (published 2026-07-20 as a pre-release; tag on main
+  at `17928ea`). Built by release.yml on the tag push:
+  `GameDeck-0.9.0-win-x64.zip` (74,793,929 bytes, self-contained
+  single-file). Verified: exe stamps `0.9.0+17928ea`, at zip root, and the
+  downloaded build logs "GameDeck 0.9.0 starting". Phase 4 complete
+  (P4-1..P4-7 all done).
 - **Issue #3 FIXED and closed** (P4-2 keyboard-hook fallback; verified in
   DOOM Eternal fullscreen).
 - **P4-6 box still unchecked**: needs Will's README read-through and the
@@ -257,7 +255,7 @@ How to approach any change in this repo, before and while writing code.
   with a text fallback). Hero GIF deferred to V1-2b.
 - Chrome Web Store submission DEFERRED to v1.0 (Will's decision);
   extension is load-unpacked until then.
-- **Next work after publishing v0.9.0: the v1.0.0 milestone** in
-  `docs/ROADMAP.md` (V1-1 friend test, V1-2 Chrome Web Store, V1-2b demo
-  GIF + recordings which Will does last before v1.0, V1-3 tag v1.0.0,
-  V1-4 winget). Read the newest `handoffs/` file first, always.
+- **Next work: the v1.0.0 milestone** in `docs/ROADMAP.md`, first unchecked
+  box (V1-1 friend test, V1-2 Chrome Web Store, V1-2b demo GIF + recordings
+  which Will does last before v1.0, V1-3 tag v1.0.0, V1-4 winget). Read the
+  newest `handoffs/` file first, always.
