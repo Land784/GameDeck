@@ -91,6 +91,13 @@ Last updated: 2026-07-19 (v0.5.0 released).
 - [ ] **P4-5. Real app icon.** Replace the generated tray icon with a
       designed .ico (exe icon + tray + balloon). Keep it legible at
       16 px. Will approves the look before merge.
+      ASSETS READY (2026-07-19): Will supplied the design; generated
+      files live in `C:\Users\wesch\Downloads\GameDeckIcons\` — app.ico
+      (8 sizes, verified), icon16/48/128.png for the extension (V1-2),
+      preview montage approved down to 16 px. Remaining work is wiring
+      only: csproj `<ApplicationIcon>`, tray IconSource, balloon icon;
+      commit the assets into the repo in that PR. Master art:
+      GameDeckLogo(.svg/PNG.png) in Downloads.
       DoD: exe, tray, Alt-Tab (settings window), and balloon all show
       the new icon; Will signed off.
 - [ ] **P4-6. Docs for strangers.** README final structure per
