@@ -145,12 +145,19 @@ and a keyboard hook) and draws a normal top-most window, the same category
 of thing Discord and Steam notifications already do. It does not hook the
 game's rendering. See the [non-goals](#non-goals).
 
-**The overlay does not show over my fullscreen game.** Some older games use
-true exclusive fullscreen, where no other window can draw on top. The
-overlay cannot appear there, and that is a deliberate limitation (the fix
-would be swap-chain injection, which risks anti-cheat bans). The hotkeys
-still work, so you can change tracks blind. If you can switch the game to
-borderless or windowed fullscreen, the overlay will appear.
+**The overlay does not show over my fullscreen game.** Some games present
+their frames in a way that no other window can draw on top of: true
+exclusive fullscreen, and OpenGL games such as Balatro and Geometry Dash.
+The overlay cannot appear there, and that is a deliberate limitation (the
+fix would be swap-chain injection, which risks anti-cheat bans). The
+hotkeys still work, so you can change tracks blind. Tracked in
+[issue #11](https://github.com/Land784/GameDeck/issues/11).
+
+If the overlay is missing in **borderless** (where it normally works), the
+usual cause is Windows Fullscreen Optimizations giving the game an
+exclusive-like fast path. Turn it off for that game: right-click its `.exe`,
+open Properties, then the Compatibility tab, check "Disable fullscreen
+optimizations", and relaunch. A true windowed mode always works.
 
 **My hotkeys did nothing in a fullscreen shooter.** Earlier builds could
 miss hotkeys in raw-input exclusive fullscreen (this was tracked as
