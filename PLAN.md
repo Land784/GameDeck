@@ -679,6 +679,7 @@ Files:
 | — | No injection | DX hook overlay | Anti-cheat risk unacceptable |
 | 2026-07-18 | `HttpListener` for the bridge server | TcpListener + manual WS handshake | Spike confirmed non-admin bind works on `http://127.0.0.1:52780/bridge/` (loopback needs no URL ACL) |
 | 2026-07-19 | Self-contained release builds (from v0.9.0, via release.yml) | Runtime-dependent (~8 MB zip) | Strangers unzip and run with no .NET install; ~70 MB accepted (Will) |
+| 2026-07-20 | Overlay accent recolored cyan `#4FC3F7` -> purple `#9333FD` to match the new app icon; extension PNGs (icon16/48/128) refreshed to the same art | Keep cyan overlay; leave extension icons for V1-2 | Visual coherence with the P4-5 icon; Will approved pulling both into the P4-5 PR (out of strict P4-5 "wiring only" scope, logged here + ROADMAP) |
 
 ## 12. Rough timeline (evenings/weekends pace)
 

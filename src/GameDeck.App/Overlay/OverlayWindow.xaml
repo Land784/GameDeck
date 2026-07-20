@@ -12,7 +12,7 @@
                 <Setter Property="BorderBrush" Value="Transparent" />
                 <Style.Triggers>
                     <DataTrigger Binding="{Binding IsInteractive}" Value="True">
-                        <Setter Property="BorderBrush" Value="#804FC3F7" />
+                        <Setter Property="BorderBrush" Value="#809333FD" />
                     </DataTrigger>
                 </Style.Triggers>
             </Style>
@@ -56,7 +56,7 @@
 
             <Border Grid.Row="1" Height="2" Margin="12,0,12,10"
                     Background="#22FFFFFF" CornerRadius="1" ClipToBounds="True">
-                <Rectangle Fill="#FF4FC3F7" RenderTransformOrigin="0,0.5">
+                <Rectangle Fill="#FF9333FD" RenderTransformOrigin="0,0.5">
                     <Rectangle.RenderTransform>
                         <ScaleTransform ScaleX="{Binding Progress}" />
                     </Rectangle.RenderTransform>
