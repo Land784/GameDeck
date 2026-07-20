@@ -6,7 +6,7 @@ CLAUDE.md defines HOW to work (constraints, conventions, protocol);
 PLAN.md holds the original deep design (reference, not sequencing).
 When this file and PLAN.md disagree about sequencing, this file wins.
 
-Last updated: 2026-07-20 (P4-6 docs drafted).
+Last updated: 2026-07-20 (P4-7 release prep).
 
 ## Rules of engagement — read before doing anything
 
@@ -153,7 +153,19 @@ Last updated: 2026-07-20 (P4-6 docs drafted).
       the exclusive-fullscreen overlay limitation and issue #3 status.
       DoD: a stranger can install and use it from README alone; Will
       read it once.
-- [ ] **P4-7. Release v0.9.0.** CHANGELOG (move Known issues forward
+- [ ] **P4-7. Release v0.9.0.** PREP DONE 2026-07-20 (branch
+      `chore/release-0.9.0` / this PR): CHANGELOG [0.9.0] section written
+      (P4-1..P4-6, #3 moved to Fixed) with compare link; version bumped
+      0.5.0 -> 0.9.0 in `Directory.Build.props`; build clean. REMAINING
+      (Will, cannot be automated here): squash-merge this PR; then follow
+      the CLAUDE.md release motion tail: `git fetch --prune`, tag `v0.9.0`
+      on main, push the tag -> release.yml (P4-1) builds the self-contained
+      zip and creates the pre-release. Then verify the asset attached and
+      smoke-test the downloaded zip on a clean PATH (run it, confirm the
+      "GameDeck 0.9.0 starting" log line). Note: GIFs/recordings are
+      deliberately deferred to the v1.0 run (Will), so v0.9.0 ships with
+      the README placeholders.
+      CHANGELOG (move Known issues forward
       if #3 is fixed — it should be by P4-2), bump version, branch
       merge, tag; release now happens via release.yml (P4-1) — verify
       the asset, smoke-test the downloaded zip on a clean PATH.

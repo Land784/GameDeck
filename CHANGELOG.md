@@ -5,6 +5,47 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2026-07-20
+
+The Phase 4 ship-quality release: hotkeys now reach the app even in
+raw-input exclusive fullscreen, plus a real app icon, first-run
+onboarding, a crash dialog, and docs written for people who did not build
+it.
+
+### Added
+
+- First-run onboarding. On the very first launch, a tray balloon points at
+  the overlay hotkey and the settings menu, and the overlay pops briefly
+  showing the current track (or a friendly "Play something and I'll show up
+  here" when nothing is playing). It shows once and never repeats.
+- A designed app icon across the executable, the tray, the taskbar and
+  Alt-Tab (settings window), and the notification balloon, legible down to
+  16 px.
+- A crash dialog. If GameDeck hits an unhandled error it now shows a short
+  "GameDeck hit a problem and closed" dialog with an "Open logs folder"
+  button, instead of only writing to the log and disappearing.
+- `docs/architecture.md`: component diagram, the reasoning behind each
+  design choice, the hotkey fallback, the threading model, and the project
+  layout.
+
+### Changed
+
+- Release builds are now self-contained single-file executables, produced
+  by a tag-triggered CI workflow. You no longer need to install a .NET
+  runtime to run a downloaded build.
+- The README is rewritten for newcomers: install-first, with SmartScreen
+  guidance, a hotkey table, an FAQ (including the exclusive-fullscreen
+  overlay limitation), the security model, and contributing notes.
+
+### Fixed
+
+- Global hotkeys now reach the app even when a raw-input title swallows
+  registered hotkeys in exclusive fullscreen (seen with DOOM Eternal), via
+  a low-level keyboard-hook fallback that matches the same combos and fires
+  once. This resolves
+  [#3](https://github.com/Land784/GameDeck/issues/3); windowed and
+  borderless were never affected.
+
 ## [0.5.0] - 2026-07-19
 
 The Phase 2 polish release: the overlay remembers its placement, a
@@ -115,6 +156,7 @@ The "invisible MVP": full media control without a visible window.
 - Single-instance guard; settings persisted to
   `%APPDATA%\GameDeck\settings.json` with atomic saves.
 
+[0.9.0]: https://github.com/Land784/GameDeck/compare/v0.5.0...v0.9.0
 [0.5.0]: https://github.com/Land784/GameDeck/compare/v0.3.0...v0.5.0
 [0.3.0]: https://github.com/Land784/GameDeck/compare/v0.1.1...v0.3.0
 [0.1.1]: https://github.com/Land784/GameDeck/compare/v0.1.0...v0.1.1
