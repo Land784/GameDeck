@@ -30,7 +30,8 @@ Last updated: 2026-07-19 (v0.5.0 released).
 
 ## Milestone: v0.5.0 loose ends (now)
 
-- [ ] **L1. v0.5.0 release asset upload.** GitHub uploads endpoint was
+- [x] **L1. v0.5.0 release asset upload.** (Done 2026-07-19: zip
+      attached, 7,711,079 bytes, verified via `gh release view`.) GitHub uploads endpoint was
       down (502/503) on release night; the release page exists but may
       have no zip. Verify with
       `gh release view v0.5.0 --json assets`. If empty: the zip is
