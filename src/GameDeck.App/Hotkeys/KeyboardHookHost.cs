@@ -10,9 +10,11 @@ namespace GameDeck.App.Hotkeys;
 /// WH_KEYBOARD_LL fallback for games whose raw-input exclusive fullscreen
 /// swallows RegisterHotKey (issue #3). This is an OS input hook; it never
 /// touches the game process. The callback only feeds the shared matcher
-/// and enqueues the dispatch; it always calls CallNextHookEx and never
-/// swallows input. Create on the UI thread (the hook needs its message
-/// loop, and callbacks arrive on it).
+/// and enqueues the dispatch. A matched combo's key (and its auto-repeats
+/// and key-up) is consumed, mirroring what RegisterHotKey does, so the
+/// foreground app does not also act on it; all other input passes through
+/// untouched. Create on the UI thread (the hook needs its message loop,
+/// and callbacks arrive on it).
 /// </summary>
 public sealed class KeyboardHookHost : IDisposable
 {
@@ -27,6 +29,7 @@ public sealed class KeyboardHookHost : IDisposable
     private readonly Dispatcher _dispatcher;
     private readonly ILogger _logger;
     private readonly NativeMethods.LowLevelKeyboardProc _proc; // kept alive for the hook's lifetime
+    private readonly HashSet<uint> _consumed = new(); // hook-thread only
     private IntPtr _hook;
 
     public KeyboardHookHost(HotkeyFallbackMatcher matcher, Action<HotkeyAction> dispatch, ILogger? logger = null)
@@ -75,10 +78,18 @@ public sealed class KeyboardHookHost : IDisposable
             {
                 case WmKeydown or WmSyskeydown:
                     if (_matcher.OnKeyDown(vk, CurrentModifiers()) is { } action)
+                    {
+                        _consumed.Add(vk);
                         _dispatcher.BeginInvoke(() => _dispatch(action));
+                        return new IntPtr(1);
+                    }
+                    if (_consumed.Contains(vk))
+                        return new IntPtr(1); // auto-repeat of a consumed key
                     break;
                 case WmKeyup or WmSyskeyup:
                     _matcher.OnKeyUp(vk);
+                    if (_consumed.Remove(vk))
+                        return new IntPtr(1);
                     break;
             }
         }
