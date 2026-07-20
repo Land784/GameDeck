@@ -1,5 +1,6 @@
 using System.IO;
 using System.Windows;
+using GameDeck.App.Diagnostics;
 using GameDeck.App.Hotkeys;
 using GameDeck.App.Overlay;
 using GameDeck.App.Settings;
@@ -34,6 +35,8 @@ public partial class App : Application
     private AdBridgeServer? _bridge;
     private ILoggerFactory? _loggerFactory;
     private ILogger? _log;
+    private string _logDir = "";
+    private int _crashDialogShown;
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -109,26 +112,33 @@ public partial class App : Application
 
     private ILoggerFactory ConfigureLogging()
     {
-        var logDir = Path.Combine(
+        _logDir = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GameDeck", "logs");
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
             .WriteTo.File(
-                Path.Combine(logDir, "gamedeck-.log"),
+                Path.Combine(_logDir, "gamedeck-.log"),
                 rollingInterval: RollingInterval.Day,
                 retainedFileCountLimit: 7)
             .CreateLogger();
 
-        // Log-only global handlers; the crash dialog is planned for Phase 4.
+        // Fatal handlers: log, tell the user, then exit. UnobservedTaskException
+        // stays log-only (background faults should not tear the app down).
         DispatcherUnhandledException += (_, args) =>
         {
             Log.Fatal(args.Exception, "Unhandled exception on the UI thread");
             Log.CloseAndFlush();
+            ShowCrashDialogOnce();
+            // We have already logged and shown the dialog; suppress WPF's own
+            // crash so the app exits cleanly instead of via a Windows error.
+            args.Handled = true;
+            Shutdown();
         };
         AppDomain.CurrentDomain.UnhandledException += (_, args) =>
         {
             Log.Fatal(args.ExceptionObject as Exception, "Unhandled exception (AppDomain)");
             Log.CloseAndFlush();
+            ShowCrashDialogOnce();
         };
         TaskScheduler.UnobservedTaskException += (_, args) =>
         {
@@ -137,6 +147,18 @@ public partial class App : Application
         };
 
         return new SerilogLoggerFactory(Log.Logger);
+    }
+
+    // Both fatal handlers can fire for one failure; show the dialog at most once.
+    // The hook may run off the UI thread (AppDomain), so marshal to the dispatcher.
+    private void ShowCrashDialogOnce()
+    {
+        if (Interlocked.Exchange(ref _crashDialogShown, 1) != 0) return;
+
+        if (Dispatcher.CheckAccess())
+            CrashDialog.Show(_logDir);
+        else
+            Dispatcher.Invoke(() => CrashDialog.Show(_logDir));
     }
 
     private void OnSessionSwitch(object sender, SessionSwitchEventArgs e)
