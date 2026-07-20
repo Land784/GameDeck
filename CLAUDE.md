@@ -204,8 +204,17 @@ tests), overlay ad strip + Ctrl+Alt+S wired and verified live against a
 scripted fake extension, MV3 extension in `extension/`. Tray icon pinned
 to H.NotifyIcon.Wpf 2.3.0 (2.4.1 has no net8.0 target).
 
-Phase 3 verified against live YouTube ads (both skip paths: synthetic
-click and seek fallback) and released as v0.3.0. Remaining Phase 3
-loose ends: Chrome Web Store submission (Will's account, $5) and the
-demo GIF. Next: Phase 2 polish (Session B in the newest handoffs/
-file — read it first, always).
+v0.5.0 released (Phase 2 polish: DPI V2 manifest, overlay placement
+persistence, settings window, single-instance balloon, not-running pin).
+Test matrix filled at docs/testing/testing-matrix.md: 12 pass, 1 N/A
+(no mixed-DPI hardware), 1 FAIL — issue #3: raw-input exclusive
+fullscreen (DOOM Eternal) swallows RegisterHotKey hotkeys; accepted as
+a documented known issue for 0.5.0, fix planned in Phase 4 (likely
+WH_KEYBOARD_LL fallback — still no injection/hooking of game processes).
+Chrome Web Store submission still DEFERRED to v1.0 (Will's call);
+extension is load-unpacked until then. 96 Core tests.
+
+Next: demo GIF over a real game (README hero + release page), then
+Phase 4 (Session C in the newest handoffs/ file — read it first,
+always): release.yml on tag, crash dialog, onboarding, real icon,
+issue #3 hotkey fallback.

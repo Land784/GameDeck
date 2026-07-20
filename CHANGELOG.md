@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-07-19
+
+The Phase 2 polish release: the overlay remembers its placement, a
+settings window, and DPI/single-instance hardening. Verified against the
+manual game-compatibility matrix in docs/testing/testing-matrix.md.
+
+### Added
+
+- Settings window (tray menu, "Settings"): overlay opacity with live
+  preview, auto-hide delay (or always visible), corner presets, hotkey
+  rebinding with a key recorder and inline conflict warnings, media
+  source pinning, bridge token and extension connection status, start
+  with Windows, and an animations toggle.
+- The overlay remembers where you put it. Drag it in interactive mode
+  (Ctrl+Alt+I) and it snaps to a corner when close, then restores there
+  on the next launch, per monitor. If the monitor is gone, it falls back
+  to the primary top right.
+- Per-monitor DPI awareness (V2), so the overlay lands where it should
+  on mixed-DPI setups.
+- Launching GameDeck while it is already running now shows a balloon
+  pointing at the tray icon instead of silently doing nothing.
+- A pinned media source that is not running shows grayed in the pickers
+  as "name (not running)" instead of disappearing.
+
+### Known issues
+
+- Global hotkeys do not reach the app while some raw-input titles run in
+  exclusive fullscreen (seen with DOOM Eternal; windowed and borderless
+  are unaffected). Tracked in
+  [#3](https://github.com/Land784/GameDeck/issues/3); fix planned for
+  the next phase.
+
 ## [0.3.0] - 2026-07-18
 
 The Phase 2 overlay core and the Phase 3 ad-skip bridge, verified against
@@ -83,6 +115,7 @@ The "invisible MVP": full media control without a visible window.
 - Single-instance guard; settings persisted to
   `%APPDATA%\GameDeck\settings.json` with atomic saves.
 
+[0.5.0]: https://github.com/Land784/GameDeck/compare/v0.3.0...v0.5.0
 [0.3.0]: https://github.com/Land784/GameDeck/compare/v0.1.1...v0.3.0
 [0.1.1]: https://github.com/Land784/GameDeck/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/Land784/GameDeck/releases/tag/v0.1.0

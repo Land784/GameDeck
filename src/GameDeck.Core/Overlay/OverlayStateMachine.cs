@@ -18,6 +18,16 @@ public sealed record OverlayTimings(TimeSpan FadeIn, TimeSpan VisibleDuration, T
         TimeSpan.FromMilliseconds(150),
         TimeSpan.FromSeconds(4),
         TimeSpan.FromMilliseconds(300));
+
+    /// <summary>Maps user settings onto timings: 0 s means never auto-hide,
+    /// disabled animations collapse the fades to instant.</summary>
+    public static OverlayTimings FromSettings(int autoHideSeconds, bool animationsEnabled)
+    {
+        var visible = autoHideSeconds <= 0 ? Timeout.InfiniteTimeSpan : TimeSpan.FromSeconds(autoHideSeconds);
+        return animationsEnabled
+            ? Default with { VisibleDuration = visible }
+            : new OverlayTimings(TimeSpan.Zero, visible, TimeSpan.Zero);
+    }
 }
 
 /// <summary>
@@ -31,7 +41,7 @@ public sealed record OverlayTimings(TimeSpan FadeIn, TimeSpan VisibleDuration, T
 public sealed class OverlayStateMachine : IDisposable
 {
     private readonly TimeProvider _time;
-    private readonly OverlayTimings _timings;
+    private OverlayTimings _timings;
     private readonly ITimer _timer;
     private readonly object _sync = new();
 
@@ -72,6 +82,17 @@ public sealed class OverlayStateMachine : IDisposable
                         TransitionTo(OverlayState.FadingIn, _timings.FadeIn);
                     break;
             }
+        }
+    }
+
+    /// <summary>Settings changed; a running visible countdown restarts under the new timings.</summary>
+    public void UpdateTimings(OverlayTimings timings)
+    {
+        lock (_sync)
+        {
+            _timings = timings;
+            if (State == OverlayState.Visible)
+                _timer.Change(VisibleTimeout, Timeout.InfiniteTimeSpan);
         }
     }
 

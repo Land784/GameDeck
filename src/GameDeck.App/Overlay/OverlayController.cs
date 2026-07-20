@@ -2,6 +2,7 @@ using System.Windows.Threading;
 using GameDeck.Core.Bridge;
 using GameDeck.Core.Media;
 using GameDeck.Core.Overlay;
+using GameDeck.Core.Settings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 
@@ -20,7 +21,8 @@ public sealed class OverlayController : IDisposable
 
     private readonly IMediaSessionService _media;
     private readonly OverlayStateMachine _machine;
-    private readonly OverlayTimings _timings;
+    private readonly SettingsService _settings;
+    private OverlayTimings _timings;
     private readonly ILogger _logger;
     private readonly Dispatcher _dispatcher;
     private readonly OverlayViewModel _vm = new();
@@ -32,12 +34,14 @@ public sealed class OverlayController : IDisposable
     public OverlayController(
         IMediaSessionService media,
         OverlayStateMachine machine,
-        OverlayTimings timings,
+        SettingsService settings,
         ILogger logger)
     {
         _media = media;
         _machine = machine;
-        _timings = timings;
+        _settings = settings;
+        _timings = OverlayTimings.FromSettings(
+            settings.Current.AutoHideSeconds, settings.Current.AnimationsEnabled);
         _logger = logger;
         _dispatcher = Dispatcher.CurrentDispatcher;
 
@@ -68,7 +72,59 @@ public sealed class OverlayController : IDisposable
         _window.MouseEnter += (_, _) => _machine.PointerEntered();
         _window.MouseLeave += (_, _) => _machine.PointerExited();
         _window.MouseMove += (_, _) => ResetInteractiveRevert();
+        _window.DragCompleted += PersistPlacement;
         SystemEvents.DisplaySettingsChanged += OnDisplaySettingsChanged;
+    }
+
+    private double TargetOpacity => Math.Clamp(_settings.Current.OverlayOpacity, 0.3, 1.0);
+
+    /// <summary>Positions the window from persisted placement and shows it.
+    /// A missing monitor falls back to the primary.</summary>
+    private void ShowPlaced()
+    {
+        var s = _settings.Current;
+        var monitors = MonitorInterop.GetMonitors();
+        var monitor = MonitorInterop.ByNameOrPrimary(monitors, s.OverlayMonitor);
+        var height = _window.ActualHeight > 0 ? _window.ActualHeight : 96;
+        var (left, top) = OverlayPlacement.Position(
+            monitor.WorkAreaDip, _window.Width, height, s.OverlayCorner, s.OverlayOffsetX, s.OverlayOffsetY);
+        _window.ShowAt(left, top);
+    }
+
+    /// <summary>Drag ended: snap to a corner placement, persist, reposition.</summary>
+    private void PersistPlacement()
+    {
+        var monitors = MonitorInterop.GetMonitors();
+        var window = new RectD(_window.Left, _window.Top, _window.ActualWidth, _window.ActualHeight);
+        var monitor = MonitorInterop.ByPointOrPrimary(monitors, window.CenterX, window.CenterY);
+        var (corner, offsetX, offsetY) = OverlayPlacement.FromWindow(monitor.WorkAreaDip, window);
+
+        _settings.Update(s =>
+        {
+            s.OverlayMonitor = monitor.DeviceName;
+            s.OverlayCorner = corner;
+            s.OverlayOffsetX = offsetX;
+            s.OverlayOffsetY = offsetY;
+        });
+        ShowPlaced();
+        _logger.LogInformation("Overlay placement saved: {Monitor} {Corner} +{X},+{Y}",
+            monitor.DeviceName, corner, offsetX, offsetY);
+    }
+
+    /// <summary>Pops the card briefly so settings changes are visible immediately.</summary>
+    public void Preview() => _machine.NotifyTrackChanged();
+
+    /// <summary>Settings window applied changes: re-derive timings, opacity, position.</summary>
+    public void ApplySettingsChanged()
+    {
+        _timings = OverlayTimings.FromSettings(
+            _settings.Current.AutoHideSeconds, _settings.Current.AnimationsEnabled);
+        _machine.UpdateTimings(_timings);
+        if (_machine.State is OverlayState.Visible or OverlayState.FadingIn)
+        {
+            ShowPlaced();
+            _window.BeginFade(TargetOpacity, TimeSpan.Zero);
+        }
     }
 
     public void ToggleVisibility() => _machine.ToggleVisibility();
@@ -89,8 +145,15 @@ public sealed class OverlayController : IDisposable
     public void Reset()
     {
         SetInteractive(false);
+        _settings.Update(s =>
+        {
+            s.OverlayMonitor = null;
+            s.OverlayCorner = OverlayCorner.TopRight;
+            s.OverlayOffsetX = OverlayPlacement.DefaultMargin;
+            s.OverlayOffsetY = OverlayPlacement.DefaultMargin;
+        });
         if (_machine.State is OverlayState.Visible or OverlayState.FadingIn)
-            _window.ShowTopRight();
+            ShowPlaced();
     }
 
     private void SetInteractive(bool interactive)
@@ -131,8 +194,8 @@ public sealed class OverlayController : IDisposable
         {
             case OverlayState.FadingIn:
                 UpdateProgress();
-                _window.ShowTopRight();
-                _window.BeginFade(1.0, _timings.FadeIn);
+                ShowPlaced();
+                _window.BeginFade(TargetOpacity, _timings.FadeIn);
                 _topmostGuard.Start();
                 _progressTimer.Start();
                 break;
@@ -163,7 +226,7 @@ public sealed class OverlayController : IDisposable
         {
             if (_machine.State is OverlayState.Visible or OverlayState.FadingIn)
             {
-                _window.ShowTopRight();
+                ShowPlaced();
                 _logger.LogInformation("Display settings changed; overlay repositioned");
             }
         });

@@ -222,6 +222,42 @@ public class OverlayStateMachineTests
         Assert.Equal(OverlayState.Hidden, machine.State);
     }
 
+    [Theory]
+    [InlineData(0, true)]
+    [InlineData(-1, true)]
+    public void TimingsFromSettings_ZeroAutoHide_MeansNeverHide(int seconds, bool animations)
+    {
+        Assert.Equal(Timeout.InfiniteTimeSpan,
+            OverlayTimings.FromSettings(seconds, animations).VisibleDuration);
+    }
+
+    [Fact]
+    public void TimingsFromSettings_DisabledAnimations_CollapseFades()
+    {
+        var timings = OverlayTimings.FromSettings(7, animationsEnabled: false);
+
+        Assert.Equal(TimeSpan.Zero, timings.FadeIn);
+        Assert.Equal(TimeSpan.Zero, timings.FadeOut);
+        Assert.Equal(TimeSpan.FromSeconds(7), timings.VisibleDuration);
+    }
+
+    [Fact]
+    public void UpdateTimings_AppliesToTheCurrentVisibleCountdown()
+    {
+        var machine = Create();
+        machine.NotifyTrackChanged();
+        _time.Advance(OverlayTimings.Default.FadeIn);
+
+        machine.UpdateTimings(OverlayTimings.Default with { VisibleDuration = TimeSpan.FromSeconds(10) });
+        _time.Advance(OverlayTimings.Default.VisibleDuration);
+
+        Assert.Equal(OverlayState.Visible, machine.State);
+
+        _time.Advance(TimeSpan.FromSeconds(10) - OverlayTimings.Default.VisibleDuration);
+
+        Assert.Equal(OverlayState.FadingOut, machine.State);
+    }
+
     [Fact]
     public void RapidToggleMidFade_DoesNotFireStaleDeadlines()
     {

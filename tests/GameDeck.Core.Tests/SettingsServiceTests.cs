@@ -53,6 +53,31 @@ public class SettingsServiceTests : IDisposable
     }
 
     [Fact]
+    public void OverlaySettings_RoundTripIncludingCornerEnum()
+    {
+        var service = new SettingsService(_dir);
+        service.Load();
+        service.Update(s =>
+        {
+            s.OverlayCorner = GameDeck.Core.Overlay.OverlayCorner.BottomLeft;
+            s.OverlayMonitor = @"\\.\DISPLAY2";
+            s.OverlayOffsetX = 40;
+            s.OverlayOpacity = 0.7;
+            s.AutoHideSeconds = 0;
+            s.AnimationsEnabled = false;
+        });
+
+        var reloaded = new SettingsService(_dir).Load();
+
+        Assert.Equal(GameDeck.Core.Overlay.OverlayCorner.BottomLeft, reloaded.OverlayCorner);
+        Assert.Equal(@"\\.\DISPLAY2", reloaded.OverlayMonitor);
+        Assert.Equal(40, reloaded.OverlayOffsetX);
+        Assert.Equal(0.7, reloaded.OverlayOpacity);
+        Assert.Equal(0, reloaded.AutoHideSeconds);
+        Assert.False(reloaded.AnimationsEnabled);
+    }
+
+    [Fact]
     public void Load_GeneratesBridgeTokenOnce_AndKeepsItAcrossLoads()
     {
         var token = new SettingsService(_dir).Load().BridgeToken;

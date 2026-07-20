@@ -2,6 +2,7 @@ using System.IO;
 using System.Windows;
 using GameDeck.App.Hotkeys;
 using GameDeck.App.Overlay;
+using GameDeck.App.Settings;
 using GameDeck.App.Tray;
 using GameDeck.Core.Bridge;
 using GameDeck.Core.Hotkeys;
@@ -18,7 +19,11 @@ namespace GameDeck.App;
 
 public partial class App : Application
 {
+    private const string ActivateEventName = @"Local\GameDeck.Activate";
+
     private Mutex? _instanceMutex;
+    private EventWaitHandle? _activateEvent;
+    private RegisteredWaitHandle? _activateWait;
     private MediaSessionService? _media;
     private HotkeyHost? _hotkeys;
     private TrayController? _tray;
@@ -37,7 +42,17 @@ public partial class App : Application
         _instanceMutex = new Mutex(initiallyOwned: true, @"Local\GameDeck", out var createdNew);
         if (!createdNew)
         {
-            // Another instance owns the tray icon; exit quietly.
+            // Another instance owns the tray icon; poke it so it can tell the
+            // user where it lives, then exit quietly.
+            try
+            {
+                using var activate = EventWaitHandle.OpenExisting(ActivateEventName);
+                activate.Set();
+            }
+            catch (WaitHandleCannotBeOpenedException)
+            {
+                // First instance predates this build or is mid-shutdown; nothing to poke.
+            }
             Shutdown();
             return;
         }
@@ -66,11 +81,20 @@ public partial class App : Application
 
         _overlay = new OverlayController(
             _media,
-            new OverlayStateMachine(TimeProvider.System, OverlayTimings.Default),
-            OverlayTimings.Default,
+            new OverlayStateMachine(TimeProvider.System, OverlayTimings.FromSettings(
+                _settings.Current.AutoHideSeconds, _settings.Current.AnimationsEnabled)),
+            _settings,
             loggerFactory.CreateLogger<OverlayController>());
 
-        _tray = new TrayController(_media, _settings, () => _overlay?.Reset());
+        _tray = new TrayController(_media, _settings, () => _overlay?.Reset(), OpenSettings);
+
+        _activateEvent = new EventWaitHandle(false, EventResetMode.AutoReset, ActivateEventName);
+        _activateWait = ThreadPool.RegisterWaitForSingleObject(
+            _activateEvent,
+            (_, _) => _tray?.ShowBalloon(
+                "GameDeck is already running",
+                "Look for the note icon in the system tray."),
+            null, Timeout.Infinite, executeOnlyOnce: false);
 
         SystemEvents.SessionSwitch += OnSessionSwitch;
 
@@ -150,6 +174,23 @@ public partial class App : Application
         }
     }
 
+    private SettingsWindow? _settingsWindow;
+
+    private void OpenSettings()
+    {
+        if (_settingsWindow is not null)
+        {
+            _settingsWindow.Activate();
+            return;
+        }
+        if (_settings is null || _hotkeys is null || _media is null || _overlay is null)
+            return;
+
+        _settingsWindow = new SettingsWindow(_settings, _hotkeys, _media, _overlay, () => _bridge);
+        _settingsWindow.Closed += (_, _) => _settingsWindow = null;
+        _settingsWindow.Show();
+    }
+
     private void StartBridge()
     {
         var token = _settings?.Current.BridgeToken;
@@ -196,6 +237,8 @@ public partial class App : Application
     protected override void OnExit(ExitEventArgs e)
     {
         SystemEvents.SessionSwitch -= OnSessionSwitch;
+        _activateWait?.Unregister(null);
+        _activateEvent?.Dispose();
         _bridge?.Dispose();
         _tray?.Dispose();
         _overlay?.Dispose();
