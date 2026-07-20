@@ -45,5 +45,9 @@ public sealed class AppSettings
 
     public bool AnimationsEnabled { get; set; } = true;
 
+    /// <summary>False until the first-run tour (balloon + overlay) has been
+    /// shown once; set true afterwards so it never repeats (additive field).</summary>
+    public bool FirstRunShown { get; set; }
+
     // Overlay settings land in Phase 2; version bump + migration when they do.
 }

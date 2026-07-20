@@ -114,6 +114,20 @@ public sealed class OverlayController : IDisposable
     /// <summary>Pops the card briefly so settings changes are visible immediately.</summary>
     public void Preview() => _machine.NotifyTrackChanged();
 
+    /// <summary>First-run tour: pop the card showing the current track, or a
+    /// friendly idle hint when nothing is playing yet.</summary>
+    public void ShowWelcome()
+    {
+        _dispatcher.BeginInvoke(() =>
+        {
+            if (_media.Current is null)
+                _vm.ShowIdleHint("Play something and I'll show up here");
+            else
+                _vm.UpdateFromSnapshot(_media.Current);
+            _machine.NotifyTrackChanged();
+        });
+    }
+
     /// <summary>Settings window applied changes: re-derive timings, opacity, position.</summary>
     public void ApplySettingsChanged()
     {
