@@ -8,14 +8,15 @@ A lightweight Windows overlay and global-hotkey app that lets you control any
 media source (Spotify, YouTube, Apple Music) while staying in-game. No
 alt-tabbing, no dropped frames.
 
-> 🚧 Early development. Released builds ship global hotkeys, the media
-> engine, and a tray icon. The in-game overlay and YouTube ad-skip are
-> done in source and land in the next release (v0.3.0). See
-> [PLAN.md](PLAN.md) for the full roadmap.
+> 🚧 Early development. Released builds ship the media engine, global
+> hotkeys, the in-game overlay, YouTube ad-skip, and a settings window.
+> See [PLAN.md](PLAN.md) for the full roadmap.
 
 ## What works now
 
-- **Global hotkeys** over any game, including exclusive fullscreen:
+- **Global hotkeys** over any game, including exclusive fullscreen (one
+  known exception so far:
+  [#3](https://github.com/Land784/GameDeck/issues/3)):
 
   | Hotkey | Action |
   |---|---|
@@ -79,7 +80,10 @@ system tray.
 ## How it works
 
 - **Global hotkeys** (`RegisterHotKey`) work over any game, including
-  exclusive fullscreen.
+  exclusive fullscreen. Known exception: some raw-input engines swallow
+  registered hotkeys in exclusive fullscreen (seen with DOOM Eternal;
+  windowed/borderless is fine) — tracked in
+  [#3](https://github.com/Land784/GameDeck/issues/3).
 - **Transparent overlay** (WPF layered window) shows track info and album
   art over borderless and modern fullscreen games, click-through by default.
   Legacy exclusive-fullscreen games can hide it; the hotkeys still work.
