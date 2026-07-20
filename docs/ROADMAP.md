@@ -6,7 +6,7 @@ CLAUDE.md defines HOW to work (constraints, conventions, protocol);
 PLAN.md holds the original deep design (reference, not sequencing).
 When this file and PLAN.md disagree about sequencing, this file wins.
 
-Last updated: 2026-07-20 (P4-5 icon wired).
+Last updated: 2026-07-20 (P4-3 crash dialog; P4-5 icon).
 
 ## Rules of engagement — read before doing anything
 
@@ -82,7 +82,15 @@ Last updated: 2026-07-20 (P4-5 icon wired).
       DoD: matrix row 3 hotkey check passes in DOOM Eternal fullscreen;
       no added input latency complaints in a windowed shooter session;
       Core tests for matcher/dedupe.
-- [ ] **P4-3. Crash dialog.** Global handlers currently log only.
+- [x] **P4-3. Crash dialog.** (Done 2026-07-20: code-only `CrashDialog`
+      (no XAML/pack-resource dependency, since resource loading may be
+      what failed) shown from both fatal handlers via `ShowCrashDialogOnce`
+      (Interlocked re-entry guard, dispatcher-marshaled for the AppDomain
+      path); UI-thread path sets `Handled=true` + `Shutdown()` for a clean
+      exit. Verified end-to-end with an env-gated test-throw: dialog showed
+      once, `[FTL]` line logged, "Open logs folder" opened Explorer to
+      `%APPDATA%\GameDeck\logs`, process exited cleanly. Scaffold removed.)
+      Global handlers currently log only.
       Add a modest WPF dialog on `DispatcherUnhandledException` and
       `AppDomain.UnhandledException`: "GameDeck hit a problem and
       closed." + [Open logs folder] button; keep log-only for
