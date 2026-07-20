@@ -44,11 +44,9 @@ Last updated: 2026-07-19 (v0.5.0 released).
       `gh release upload v0.5.0 <zip>`.
       DoD: `gh release view v0.5.0 --json assets` shows the zip,
       size ~7.7 MB.
-- [ ] **L2. Demo GIF (Will drives).** Over a real game: track change
-      via hotkey, overlay card fades in/out; ideally the ad strip +
-      Ctrl+Alt+S. Under 10 MB (README-embeddable). Add to README hero
-      position and the v0.5.0 release page.
-      DoD: GIF plays in README on GitHub; release page updated.
+- [x] **L2. Demo GIF — MOVED to V1-2b by Will (2026-07-19).** Not
+      blocking Phase 4; P4-6 leaves a hero-GIF placeholder slot in the
+      README.
 
 ## Milestone: Phase 4 — ship-quality (tag v0.9.0)
 
@@ -124,6 +122,11 @@ Last updated: 2026-07-19 (v0.5.0 released).
       work.
       DoD: submitted for review (live listing not required for v1.0
       tag; update README install steps when it goes live).
+- [ ] **V1-2b. Demo GIF (Will drives; moved from L2).** Over a real
+      game: track change via hotkey, overlay card fades in/out; ideally
+      the ad strip + Ctrl+Alt+S. Under 10 MB (README-embeddable).
+      DoD: GIF plays in the README hero slot on GitHub; latest release
+      page links or embeds it.
 - [ ] **V1-3. Tag v1.0.0.** CHANGELOG, version bump, tag; release via
       release.yml. Remove "Early development" callout from README.
       DoD: v1.0.0 release live, README reflects stable status.
