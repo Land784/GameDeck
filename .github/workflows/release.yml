@@ -43,12 +43,28 @@ jobs:
           Compress-Archive -Path "src/GameDeck.App/bin/Release/net8.0-windows10.0.19041.0/win-x64/publish/GameDeck.App.exe" -DestinationPath $name
           "ZIP_NAME=$name" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
-      - name: Create draft release with the zip
+      # Create bare, upload separately with retries: gh deletes the whole
+      # release if a bundled asset upload fails, and uploads.github.com
+      # has real outages (one broke this workflow's first test run).
+      - name: Create draft release
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: >
-          gh release create "${{ github.ref_name }}" "$env:ZIP_NAME"
+          gh release create "${{ github.ref_name }}"
           --draft --prerelease --verify-tag
           --title "${{ github.ref_name }}"
           --notes "Draft. Write the release notes, then publish."
+
+      - name: Upload zip (retries)
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          foreach ($i in 1..6) {
+            gh release upload "${{ github.ref_name }}" "$env:ZIP_NAME" --clobber
+            if ($LASTEXITCODE -eq 0) { exit 0 }
+            Write-Host "Upload attempt $i failed; retrying in 30 s"
+            Start-Sleep -Seconds 30
+          }
+          throw "Asset upload failed after 6 attempts"
