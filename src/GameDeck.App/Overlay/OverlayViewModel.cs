@@ -93,6 +93,15 @@ public sealed class OverlayViewModel : INotifyPropertyChanged
         };
     }
 
+    /// <summary>First-run tour only: a friendly line shown when nothing is
+    /// playing yet, in place of the plain "Nothing playing" idle text.</summary>
+    public void ShowIdleHint(string text)
+    {
+        Title = text;
+        Artist = string.Empty;
+        ArtImage = null;
+    }
+
     public void UpdateFromSnapshot(MediaSnapshot? snapshot)
     {
         Title = string.IsNullOrEmpty(snapshot?.Title) ? "Nothing playing" : snapshot!.Title;

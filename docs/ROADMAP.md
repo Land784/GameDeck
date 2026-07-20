@@ -6,7 +6,7 @@ CLAUDE.md defines HOW to work (constraints, conventions, protocol);
 PLAN.md holds the original deep design (reference, not sequencing).
 When this file and PLAN.md disagree about sequencing, this file wins.
 
-Last updated: 2026-07-20 (P4-3 crash dialog; P4-5 icon).
+Last updated: 2026-07-20 (P4-4 first-run onboarding).
 
 ## Rules of engagement — read before doing anything
 
@@ -97,7 +97,16 @@ Last updated: 2026-07-20 (P4-3 crash dialog; P4-5 icon).
       `UnobservedTaskException`. Never dialog-loop (guard re-entry).
       DoD: a deliberate test-throw shows the dialog once, opens the
       logs folder, exits cleanly.
-- [ ] **P4-4. First-run onboarding.** New `FirstRunShown` settings
+- [x] **P4-4. First-run onboarding.** (Done 2026-07-20: additive
+      `FirstRunShown` bool on AppSettings (version stays 1). `App.Maybe
+      ShowFirstRunTour` runs after media init: one tray balloon + a brief
+      overlay pop via `OverlayController.ShowWelcome` (shows the current
+      track, or a friendly "Play something and I'll show up here" idle hint
+      when nothing plays), then sets the flag. No wizard. Verified: deleted
+      settings.json -> first launch showed balloon + overlay welcome and
+      flipped FirstRunShown=true; second launch showed neither (screenshots).
+      107 Core tests green. Will's real settings.json backed up/restored
+      around the test.) New `FirstRunShown` settings
       flag. On first launch: tray balloon ("GameDeck is running —
       Ctrl+Alt+O shows the overlay, right-click the note icon for
       settings") + overlay appears ~5 s with whatever is playing or a

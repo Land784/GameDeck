@@ -201,6 +201,21 @@ public partial class App : Application
                 "GameDeck hotkey conflict",
                 $"Already taken by another app: {string.Join(", ", conflicts)}.");
         }
+
+        MaybeShowFirstRunTour();
+    }
+
+    // First launch only: one balloon pointing at the overlay hotkey and tray
+    // menu, plus a brief overlay pop. No wizard. The flag makes it fire once.
+    private void MaybeShowFirstRunTour()
+    {
+        if (_settings is null || _settings.Current.FirstRunShown) return;
+
+        _tray?.ShowBalloon(
+            "GameDeck is running",
+            "Ctrl+Alt+O shows the overlay. Right-click the note icon for settings.");
+        _overlay?.ShowWelcome();
+        _settings.Update(s => s.FirstRunShown = true);
     }
 
     private SettingsWindow? _settingsWindow;
