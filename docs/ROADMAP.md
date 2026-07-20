@@ -65,8 +65,11 @@ Last updated: 2026-07-19 (v0.5.0 released).
       current majors in `ci.yml`.
       DoD: pushing a test tag on a branch produces a draft release with
       a correctly version-stamped zip; test tag and draft deleted after.
-- [ ] **P4-2. Issue #3: hotkey fallback for raw-input exclusive
-      fullscreen.** DOOM Eternal fullscreen swallows RegisterHotKey
+- [x] **P4-2. Issue #3: hotkey fallback for raw-input exclusive
+      fullscreen.** (Done 2026-07-19: Will verified in DOOM Eternal
+      fullscreen — hotkeys work and the game no longer sees consumed
+      combo keys; desktop dedupe verified; windowed shooter feel OK per
+      matrix row 8. 11 new Core tests.) DOOM Eternal fullscreen swallows RegisterHotKey
       combos (windowed/borderless fine — see issue #3 diagnostics).
       Approach: `WH_KEYBOARD_LL` low-level keyboard hook as a FALLBACK
       path in App (never touches the game process — this is an OS input

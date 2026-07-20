@@ -21,6 +21,9 @@ public sealed class HotkeyHost : IDisposable
 
     public event Action<HotkeyAction>? HotkeyPressed;
 
+    /// <summary>Raised after every (re-)registration with the active set.</summary>
+    public event Action<IReadOnlyList<HotkeyBinding>>? BindingsRegistered;
+
     /// <summary>Actions whose combo was already taken by another app.</summary>
     public IReadOnlyList<HotkeyAction> Conflicts { get; private set; } = Array.Empty<HotkeyAction>();
 
@@ -58,6 +61,7 @@ public sealed class HotkeyHost : IDisposable
         }
 
         Conflicts = conflicts;
+        BindingsRegistered?.Invoke(_lastBindings);
         return Conflicts;
     }
 
