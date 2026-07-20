@@ -1,0 +1,72 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Publish (self-contained single file)
+        run: >
+          dotnet publish src/GameDeck.App -c Release -r win-x64
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          --self-contained true
+
+      - name: Verify version stamp matches tag
+        shell: pwsh
+        run: |
+          # Tag vX.Y.Z (optionally with a -suffix for workflow tests) must
+          # match the exe's ProductVersion, which is X.Y.Z+<sha>.
+          $base = "${{ github.ref_name }}".TrimStart('v').Split('-')[0]
+          $exe = "src/GameDeck.App/bin/Release/net8.0-windows10.0.19041.0/win-x64/publish/GameDeck.App.exe"
+          $ver = (Get-Item $exe).VersionInfo.ProductVersion
+          Write-Host "Tag base: $base  Exe ProductVersion: $ver"
+          if (-not $ver.StartsWith("$base+") -and $ver -ne $base) {
+            throw "Exe ProductVersion '$ver' does not match tag '${{ github.ref_name }}'. Was Directory.Build.props bumped before tagging?"
+          }
+
+      - name: Zip the exe
+        shell: pwsh
+        run: |
+          $name = "GameDeck-$("${{ github.ref_name }}".TrimStart('v'))-win-x64.zip"
+          Compress-Archive -Path "src/GameDeck.App/bin/Release/net8.0-windows10.0.19041.0/win-x64/publish/GameDeck.App.exe" -DestinationPath $name
+          "ZIP_NAME=$name" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      # Create bare, upload separately with retries: gh deletes the whole
+      # release if a bundled asset upload fails, and uploads.github.com
+      # has real outages (one broke this workflow's first test run).
+      - name: Create draft release (skip if it already exists)
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "${{ github.ref_name }}" *> $null
+          if ($LASTEXITCODE -eq 0) { Write-Host "Release exists; reusing it."; exit 0 }
+          gh release create "${{ github.ref_name }}" `
+            --draft --prerelease --verify-tag `
+            --title "${{ github.ref_name }}" `
+            --notes "Draft. Write the release notes, then publish."
+
+      - name: Upload zip (retries)
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          foreach ($i in 1..6) {
+            gh release upload "${{ github.ref_name }}" "$env:ZIP_NAME" --clobber
+            if ($LASTEXITCODE -eq 0) { exit 0 }
+            Write-Host "Upload attempt $i failed; retrying in 30 s"
+            Start-Sleep -Seconds 30
+          }
+          throw "Asset upload failed after 6 attempts"

@@ -678,6 +678,7 @@ Files:
 | — | Localhost WebSocket | Native Messaging | Simpler install, app already resident |
 | — | No injection | DX hook overlay | Anti-cheat risk unacceptable |
 | 2026-07-18 | `HttpListener` for the bridge server | TcpListener + manual WS handshake | Spike confirmed non-admin bind works on `http://127.0.0.1:52780/bridge/` (loopback needs no URL ACL) |
+| 2026-07-19 | Self-contained release builds (from v0.9.0, via release.yml) | Runtime-dependent (~8 MB zip) | Strangers unzip and run with no .NET install; ~70 MB accepted (Will) |
 
 ## 12. Rough timeline (evenings/weekends pace)
 
