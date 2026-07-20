@@ -52,7 +52,12 @@ Last updated: 2026-07-19 (v0.5.0 released).
 
 ## Milestone: Phase 4 — ship-quality (tag v0.9.0)
 
-- [ ] **P4-1. `release.yml`: release build in CI on tag push `v*`.**
+- [x] **P4-1. `release.yml`: release build in CI on tag push `v*`.**
+      (Done 2026-07-19: test tag v0.5.0-test produced a draft with a
+      correctly stamped 74.7 MB self-contained zip; workflow survives
+      upload outages via bare create + retried upload; test tag deleted.
+      Leftover test DRAFT release may still need deleting — GitHub API
+      was 503ing during cleanup.)
       windows-latest; publish single-file; decide self-contained
       (PLAN 8.1 leans YES, ~+60 MB, friendlier to non-devs — decide
       with Will, record in PLAN 11); zip exe only; create release with
