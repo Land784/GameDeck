@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
@@ -67,7 +68,9 @@ public sealed class SettingsService
     {
         if (Current.BridgeToken is null)
         {
-            Current.BridgeToken = Guid.NewGuid().ToString("N");
+            // Cryptographically random 128-bit token (guaranteed CSPRNG,
+            // unlike Guid.NewGuid). It gates every bridge action.
+            Current.BridgeToken = Convert.ToHexString(RandomNumberGenerator.GetBytes(16));
             Save();
         }
     }
