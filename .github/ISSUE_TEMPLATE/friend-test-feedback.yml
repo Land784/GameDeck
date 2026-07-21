@@ -1,0 +1,44 @@
+name: Friend test feedback
+description: Tell us what worked and what did not while trying GameDeck. No wrong answers.
+title: "[Friend test] "
+labels: ["friend-test"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for trying GameDeck! Every note helps, even "this confused me for a second."
+        Fill in what you can and skip anything that does not apply.
+  - type: dropdown
+    id: severity
+    attributes:
+      label: How much did it get in your way?
+      options:
+        - "Blocker: I could not install it or use it at all"
+        - "Annoying: it worked, but it frustrated me"
+        - "Minor: a small rough edge"
+        - "Just a note or an idea"
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What were you doing, what did you expect, and what did it actually do?
+      placeholder: I pressed Ctrl+Alt+O while in my game and nothing showed up on screen.
+    validations:
+      required: true
+  - type: input
+    id: game
+    attributes:
+      label: Game or app you were using
+      placeholder: e.g. Balatro (fullscreen), Spotify, Chrome on YouTube
+  - type: input
+    id: setup
+    attributes:
+      label: Your setup (optional)
+      placeholder: e.g. Windows 11, one 1080p monitor
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else? (screenshots welcome)
+      description: You can drag images straight into this box.
