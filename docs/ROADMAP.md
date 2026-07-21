@@ -6,7 +6,7 @@ CLAUDE.md defines HOW to work (constraints, conventions, protocol);
 PLAN.md holds the original deep design (reference, not sequencing).
 When this file and PLAN.md disagree about sequencing, this file wins.
 
-Last updated: 2026-07-20 (V1-2b demo GIF done).
+Last updated: 2026-07-20 (P4-6 checked; SmartScreen shot deferred).
 
 ## Rules of engagement — read before doing anything
 
@@ -132,19 +132,18 @@ Last updated: 2026-07-20 (V1-2b demo GIF done).
       GameDeckLogo(.svg/PNG.png) in Downloads.
       DoD: exe, tray, Alt-Tab (settings window), and balloon all show
       the new icon; Will signed off.
-- [ ] **P4-6. Docs for strangers.** DRAFTED 2026-07-20 (this PR): README
-      restructured to the PLAN 8.3 order (3-bullet summary, Install with
-      SmartScreen Run-anyway steps + FAQ, hotkey table, How it works,
-      security model, Build from source, Contributing, non-goals, license);
-      new `docs/architecture.md` from PLAN section 3 (diagram, why-choices,
-      hotkey fallback, threading, layout). FAQ covers the
-      exclusive-fullscreen overlay limitation and issue #3 (now fixed by the
-      P4-2 keyboard-hook fallback). No em dashes; internal anchors resolve.
-      REMAINING before checking the box: (a) Will reads it once; (b) two
-      image placeholders need real assets: the hero GIF (`docs/media/hero.gif`,
-      deferred to V1-2b) and the SmartScreen screenshot
-      (`docs/media/smartscreen.png`) — both are HTML-comment slots with
-      working text fallbacks so the README stands alone without them.
+- [x] **P4-6. Docs for strangers.** (Done 2026-07-20: README restructured
+      to the PLAN 8.3 order (3-bullet summary, Install with SmartScreen
+      Run-anyway steps + FAQ, hotkey table, How it works, security model,
+      Build from source, Contributing, non-goals, license); new
+      `docs/architecture.md` from PLAN section 3. FAQ covers the
+      exclusive-fullscreen overlay limitation and issue #3 (fixed by the
+      P4-2 keyboard-hook fallback). Hero GIF landed via V1-2b. Will read it
+      and signed off. No em dashes; anchors resolve. ONE deferred polish
+      item (Will's call, not blocking): the SmartScreen screenshot
+      (`docs/media/smartscreen.png`) is still a placeholder slot with a
+      working text fallback; drop the PNG in and swap the HTML comment for
+      the `![...]` line whenever convenient.)
       README final structure per
       PLAN 8.3 (hero GIF top, 3 bullets, install incl. SmartScreen
       "More info → Run anyway" screenshot + FAQ, hotkey table, how it

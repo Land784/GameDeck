@@ -250,12 +250,14 @@ How to approach any change in this repo, before and while writing code.
   (P4-1..P4-7 all done).
 - **Issue #3 FIXED and closed** (P4-2 keyboard-hook fallback; verified in
   DOOM Eternal fullscreen).
-- **P4-6 box still unchecked**: needs Will's README read-through and the
-  SmartScreen screenshot (`docs/media/smartscreen.png`, HTML-comment slot
-  with a text fallback). Hero GIF deferred to V1-2b.
+- **P4-6 done** (checked 2026-07-20). One deferred polish item: the
+  SmartScreen screenshot (`docs/media/smartscreen.png`) is still a
+  placeholder slot with a working text fallback; drop the PNG in whenever.
+- **V1-2b done**: demo GIFs live in the README (hero ad-skip +
+  overlay-demo song-skip) and the hero is embedded on the v0.9.0 release
+  page.
 - Chrome Web Store submission DEFERRED to v1.0 (Will's decision);
   extension is load-unpacked until then.
 - **Next work: the v1.0.0 milestone** in `docs/ROADMAP.md`, first unchecked
-  box (V1-1 friend test, V1-2 Chrome Web Store, V1-2b demo GIF + recordings
-  which Will does last before v1.0, V1-3 tag v1.0.0, V1-4 winget). Read the
-  newest `handoffs/` file first, always.
+  box: V1-1 friend test, then V1-2 Chrome Web Store, V1-3 tag v1.0.0,
+  V1-4 winget. Read the newest `handoffs/` file first, always.
