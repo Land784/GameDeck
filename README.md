@@ -4,11 +4,7 @@
 
 **Control your music and skip YouTube ads without ever leaving your game.**
 
-<!-- HERO GIF SLOT (roadmap V1-2b): replace this comment with
-     ![GameDeck demo](docs/media/hero.gif)
-     once the demo GIF is recorded. Keep it under 10 MB so it embeds. -->
-_Demo GIF coming soon: track change by hotkey and the overlay card fading
-in over a real game._
+![GameDeck demo: a YouTube ad plays in the background while gaming, the overlay shows it is skippable, and one keypress skips it without leaving the game](docs/media/hero.gif)
 
 GameDeck is a lightweight Windows tray app that puts music and YouTube
 ad-skip on global hotkeys and a small in-game overlay, so you never have to
@@ -73,6 +69,8 @@ apps are flagged there.
 | `Ctrl+Alt+S` | Skip the current YouTube ad |
 
 ## What you get
+
+![The overlay fading in with the current track as songs change by hotkey, over a game](docs/media/overlay-demo.gif)
 
 - **Global hotkeys** over any game, including exclusive fullscreen. Raw-input
   engines that used to swallow registered hotkeys (DOOM Eternal was the
