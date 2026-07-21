@@ -120,6 +120,17 @@ public sealed class AdBridgeServer : IDisposable
                 continue;
             }
 
+            // Defense in depth on top of the token: reject browser-page
+            // origins so a malicious site cannot even reach the handshake.
+            if (!BridgeOrigin.IsAllowed(context.Request.Headers["Origin"]))
+            {
+                _logger.LogWarning("Bridge rejected connection from disallowed origin {Origin}",
+                    context.Request.Headers["Origin"]);
+                context.Response.StatusCode = 403;
+                context.Response.Close();
+                continue;
+            }
+
             _ = ServeSocketAsync(context, ct);
         }
     }
