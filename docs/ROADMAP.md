@@ -6,7 +6,7 @@ CLAUDE.md defines HOW to work (constraints, conventions, protocol);
 PLAN.md holds the original deep design (reference, not sequencing).
 When this file and PLAN.md disagree about sequencing, this file wins.
 
-Last updated: 2026-07-20 (v0.9.0 released; Phase 4 done).
+Last updated: 2026-07-20 (demo GIFs wired into README).
 
 ## Rules of engagement — read before doing anything
 
@@ -183,7 +183,16 @@ Last updated: 2026-07-20 (v0.9.0 released; Phase 4 done).
       work.
       DoD: submitted for review (live listing not required for v1.0
       tag; update README install steps when it goes live).
-- [ ] **V1-2b. Demo GIF (Will drives; moved from L2).** Over a real
+- [ ] **V1-2b. Demo GIF (Will drives; moved from L2).** IN PROGRESS
+      2026-07-20: Will recorded two clips over Ghost Recon (Will-approved);
+      trimmed/compressed with ffmpeg to `docs/media/hero.gif` (ad-skip:
+      amber ad -> green skippable -> Ctrl+Alt+S -> content, 640x360, 12 fps,
+      9.5 MB) and `docs/media/overlay-demo.gif` (song-skip, 600x338, 8.8 MB),
+      both under 10 MB. This PR wires both into the README (hero slot + What
+      you get). Raw ~570 MB originals kept on Will's Desktop. REMAINING to
+      check the box: (a) hero GIF confirmed rendering in the README on
+      GitHub after merge; (b) link/embed it on the latest release page
+      (v0.9.0, or the next release). Over a real
       game: track change via hotkey, overlay card fades in/out; ideally
       the ad strip + Ctrl+Alt+S. Under 10 MB (README-embeddable).
       DoD: GIF plays in the README hero slot on GitHub; latest release
