@@ -237,7 +237,25 @@ How to approach any change in this repo, before and while writing code.
   success criterion. TDD for Core: write the failing test first.
 - For multi-step tasks, state a brief plan with a verify step per item.
 
-## Current status (2026-07-20)
+## Current status (2026-08-02)
+
+- **V1-1 friend test DONE.** Two testers installed the v0.9.0 zip cold and
+  reported zero friction points (issue #16, now closed; second tester
+  verbal). No fix branches were needed.
+- **v1.0.0 is prepped but NOT released.** Two PRs are open and CI-green,
+  both waiting on Will to merge in the browser: **#17** (CHANGELOG
+  `[1.0.0]`, version bump to 1.0.0, README early-development callout
+  removed) and **#18** (extension options button recolored to the app
+  accent). 118 Core tests. After #17 merges: tag v1.0.0, and **untick
+  "Set as a pre-release"** when publishing, because release.yml hardcodes
+  `--prerelease` (correct for 0.x, wrong for stable).
+- **V1-2 Chrome Web Store**: submission pack (zip + paste-ready listing
+  copy, permission justifications, privacy answers) was built and lives in
+  the session scratchpad, not the repo. Needs Will's $5 developer account
+  and screenshots at exactly 1280x800 or 640x400. See the newest handoff.
+- Everything below is the v0.9.0-era record, still accurate as history.
+
+## Historical status (2026-07-20)
 
 - **Phase 4 complete on main** (tip `17928ea`). Merged: P4-1 release
   workflow, P4-2 hotkey fallback, P4-3 crash dialog, P4-4 first-run
@@ -259,5 +277,5 @@ How to approach any change in this repo, before and while writing code.
 - Chrome Web Store submission DEFERRED to v1.0 (Will's decision);
   extension is load-unpacked until then.
 - **Next work: the v1.0.0 milestone** in `docs/ROADMAP.md`, first unchecked
-  box: V1-1 friend test, then V1-2 Chrome Web Store, V1-3 tag v1.0.0,
-  V1-4 winget. Read the newest `handoffs/` file first, always.
+  box: V1-2 Chrome Web Store, then V1-3 tag v1.0.0, V1-4 winget. Read the
+  newest `handoffs/` file first, always.
