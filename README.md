@@ -19,10 +19,6 @@ alt-tab out of a fullscreen game to change a song.
 
 No accounts, no OAuth, no telemetry. Nothing leaves your machine.
 
-> Early development. The app is usable today (media engine, global hotkeys,
-> overlay, YouTube ad-skip, settings window), and the pieces below all work.
-> Expect rough edges until the v1.0 tag.
-
 ## Install
 
 1. Download the latest `GameDeck-x.y.z-win-x64.zip` from the
