@@ -6,7 +6,7 @@ CLAUDE.md defines HOW to work (constraints, conventions, protocol);
 PLAN.md holds the original deep design (reference, not sequencing).
 When this file and PLAN.md disagree about sequencing, this file wins.
 
-Last updated: 2026-07-20 (P4-6 checked; SmartScreen shot deferred).
+Last updated: 2026-08-02 (V1-1 friend test checked; V1-2 next).
 
 ## Rules of engagement — read before doing anything
 
@@ -169,7 +169,16 @@ Last updated: 2026-07-20 (P4-6 checked; SmartScreen shot deferred).
 
 ## Milestone: v1.0.0
 
-- [ ] **V1-1. Friend test.** 2–3 friends install from the v0.9.0 zip
+- [x] **V1-1. Friend test.** (Done 2026-08-02: two testers installed the
+      v0.9.0 zip cold. Tester 1 filed issue #16 (`friend-test` form):
+      play, pause and skip all worked on a ThinkPad, over YouTube and
+      chess, with and without a game running; severity "just a note or an
+      idea", zero friction points reported. Tester 2 reported it looked
+      good and raised nothing. No friction points existed to file, so no
+      fix branches were needed; #16 answered and closed. Issue #11
+      (Balatro / OpenGL fullscreen) stays open as the documented accepted
+      limitation, which is not an installer blocker, so the DoD holds.)
+      2–3 friends install from the v0.9.0 zip
       cold; collect every friction point as GitHub issues; fix the
       quick ones on branches.
       DoD: each friction point is an issue (open or fixed); no
