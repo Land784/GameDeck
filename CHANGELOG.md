@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-08-02
+
+The first stable release. Nothing in the feature set changed since 0.9.0;
+what changed is confidence. Cold installs by outside testers found no
+friction points, so the early-development caveat is gone.
+
+### Security
+
+- The bridge now checks the WebSocket handshake origin against an allow-list
+  and rejects connections that carry a browser-page origin, so a random web
+  page cannot reach the local bridge even if it learned the port. This sits
+  on top of the existing token check rather than replacing it.
+- The extension pairing token is now generated with a cryptographically
+  secure random number generator instead of a GUID. Tokens already saved in
+  the extension keep working.
+- Added `SECURITY.md` describing the trust boundary and how to report a
+  vulnerability.
+
+### Changed
+
+- The README no longer carries the early-development warning, and shows the
+  ad-skip and song-skip demos recorded over a real game.
+
+### Documentation
+
+- The overlay FAQ names Balatro and other OpenGL-fullscreen titles
+  explicitly, with the Fullscreen Optimizations workaround. These bypass
+  desktop composition, so the overlay cannot draw over them; this is an
+  accepted limitation, tracked in
+  [#11](https://github.com/Land784/GameDeck/issues/11).
+- Added a tester guide and a feedback issue form for cold-install testing.
+
 ## [0.9.0] - 2026-07-20
 
 The Phase 4 ship-quality release: hotkeys now reach the app even in
@@ -156,6 +188,7 @@ The "invisible MVP": full media control without a visible window.
 - Single-instance guard; settings persisted to
   `%APPDATA%\GameDeck\settings.json` with atomic saves.
 
+[1.0.0]: https://github.com/Land784/GameDeck/compare/v0.9.0...v1.0.0
 [0.9.0]: https://github.com/Land784/GameDeck/compare/v0.5.0...v0.9.0
 [0.5.0]: https://github.com/Land784/GameDeck/compare/v0.3.0...v0.5.0
 [0.3.0]: https://github.com/Land784/GameDeck/compare/v0.1.1...v0.3.0
